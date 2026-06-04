@@ -2,15 +2,16 @@ import type { Product } from '@/lib/db/schema';
 
 export default function SpecsTable({ product }: { product: Product }) {
   const rows = [
-    ['Modelo', product.model],
-    ['Dimensiones', `${product.widthMm}mm × ${product.heightMm > 0 ? product.heightMm + 'mm' : 'continua'}`],
-    ['Tamaño (pulgadas)', `${product.widthIn} × ${product.heightIn}`],
+    ['Modelo',             product.model],
+    ['Dimensiones',        `${product.widthMm}mm × ${product.heightMm > 0 ? product.heightMm + 'mm' : 'continua'}`],
+    ['Tamaño (pulgadas)',  `${product.widthIn} × ${product.heightIn}`],
     ['Etiquetas por rollo', String(product.unitsPerRoll)],
-    ['Tipo de corte', product.labelType === 'die-cut' ? 'Troquelado' : 'Continuo'],
-    ['Tipo de impresión', 'Térmica directa'],
-    ['Color', 'Negro sobre blanco'],
-    ['Adhesivo', 'Permanente (fuerte)'],
-    ['Núcleo del rollo', '12mm'],
+    ['Tipo de corte',      product.labelType === 'die-cut' ? 'Troquelado' : 'Continuo'],
+    ['Tipo de impresión',  product.printType],
+    ['Color',              product.labelColor],
+    ['Adhesivo',           product.adhesiveType],
+    ['Material',           product.material],
+    ['Núcleo del rollo',   product.rollCoreMm],
   ];
 
   return (

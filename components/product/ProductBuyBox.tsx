@@ -52,7 +52,7 @@ export default function ProductBuyBox({ product }: { product: Product }) {
           { icon: <Hash size={15} />, label: 'Cantidad', value: `${product.unitsPerRoll} etiquetas por rollo` },
           { icon: <Printer size={15} />, label: 'Tipo', value: product.labelType === 'die-cut' ? 'Troquelada (tamaño fijo)' : 'Continua (longitud variable)' },
           { icon: <Scissors size={15} />, label: 'Corte', value: product.labelType === 'die-cut' ? 'Pre-cortada' : 'Manual / automático' },
-          { icon: <Package size={15} />, label: 'Material', value: 'Papel térmico recubierto' },
+          { icon: <Package size={15} />, label: 'Material', value: product.material },
         ].map(({ icon, label, value }) => (
           <div key={label} className="flex items-start gap-2 text-sm">
             <span className="text-gray-400 mt-0.5">{icon}</span>

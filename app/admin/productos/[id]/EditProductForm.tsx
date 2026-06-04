@@ -97,6 +97,7 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     // Identificación
     name:           product.name,
     slug:           product.slug,
+    model:          product.model,
     // Descripción y SEO
     description:    product.description ?? '',
     metaDescription: product.metaDescription ?? '',
@@ -108,6 +109,11 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     widthIn:        product.widthIn,
     heightIn:       product.heightIn,
     unitsPerRoll:   product.unitsPerRoll,
+    material:       product.material,
+    printType:      product.printType,
+    labelColor:     product.labelColor,
+    adhesiveType:   product.adhesiveType,
+    rollCoreMm:     product.rollCoreMm,
     // Arrays
     compatibleWith: product.compatibleWith,
     features:       product.features,
@@ -224,10 +230,16 @@ export default function EditProductForm({ product }: { product: ProductWithImage
 
       {/* ── IDENTIFICACIÓN ── */}
       <Section title="Identificación">
-        <Field label="Nombre del producto">
-          <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)}
-            className={inputCls} required />
-        </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Nombre del producto">
+            <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)}
+              className={inputCls} required />
+          </Field>
+          <Field label="Modelo" hint="Ej: DK-1201, DK-2205">
+            <input type="text" value={form.model} onChange={(e) => set('model', e.target.value)}
+              className={inputCls} required />
+          </Field>
+        </div>
         <Field label="Slug (URL)" hint={`URL: /productos/${form.slug}`}>
           <input type="text" value={form.slug} onChange={(e) => set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
             className={inputCls} required />
@@ -304,6 +316,29 @@ export default function EditProductForm({ product }: { product: ProductWithImage
               <option value="die-cut">Troquelado (die-cut)</option>
               <option value="continuous">Continuo (continuous)</option>
             </select>
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Tipo de impresión">
+            <input type="text" value={form.printType} onChange={(e) => set('printType', e.target.value)}
+              className={inputCls} />
+          </Field>
+          <Field label="Material">
+            <input type="text" value={form.material} onChange={(e) => set('material', e.target.value)}
+              className={inputCls} />
+          </Field>
+          <Field label="Color">
+            <input type="text" value={form.labelColor} onChange={(e) => set('labelColor', e.target.value)}
+              className={inputCls} />
+          </Field>
+          <Field label="Tipo de adhesivo">
+            <input type="text" value={form.adhesiveType} onChange={(e) => set('adhesiveType', e.target.value)}
+              className={inputCls} />
+          </Field>
+          <Field label="Núcleo del rollo">
+            <input type="text" value={form.rollCoreMm} onChange={(e) => set('rollCoreMm', e.target.value)}
+              className={inputCls} />
           </Field>
         </div>
       </Section>
