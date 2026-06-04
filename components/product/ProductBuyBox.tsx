@@ -1,15 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, PackageCheck, PackageMinus, PackageX, AlertTriangle } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
 import QuantitySelector from '@/components/ui/QuantitySelector';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 
+function StockBadge({ stock }: { stock: number | null | string }) {
+  const n = stock === null || stock === '' ? null : Number(stock);
+  if (n === null) return null;
+  if (n === 0)  return (
+    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+      <PackageX size={15} /> Sin stock
+    </span>
+  );
+  if (n <= 3)   return (
+    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+      <AlertTriangle size={15} /> ¡Últimas {n} {n === 1 ? 'unidad' : 'unidades'}!
+    </span>
+  );
+  if (n <= 10)  return (
+    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+      <PackageMinus size={15} /> Quedan {n} unidades
+    </span>
+  );
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+      <PackageCheck size={15} /> En stock
+    </span>
+  );
+}
+
 export default function ProductBuyBox({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
+  const outOfStock = Number(product.stock) === 0 && product.stock !== null;
 
   const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: qty });
 
@@ -34,12 +60,20 @@ export default function ProductBuyBox({ product }: { product: Product }) {
         )}
       </div>
 
+      <StockBadge stock={product.stock} />
+
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">Cantidad:</span>
         <QuantitySelector value={qty} onChange={setQty} />
       </div>
 
-      <WhatsAppButton href={waUrl} label="🟢 Pedir por WhatsApp" size="lg" className="w-full justify-center" />
+      {outOfStock ? (
+        <button disabled className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-gray-400 cursor-not-allowed">
+          Sin stock disponible
+        </button>
+      ) : (
+        <WhatsAppButton href={waUrl} label="🟢 Pedir por WhatsApp" size="lg" className="w-full justify-center" />
+      )}
 
       <p className="text-sm text-gray-500 text-center">
         Te respondemos a la brevedad para coordinar el envío
@@ -63,7 +97,7 @@ export default function ProductBuyBox({ product }: { product: Product }) {
 
       {/* Trust row */}
       <div className="flex flex-wrap gap-3 pt-1">
-        {['📦 Stock disponible', '🚚 Envíos a todo Bolivia', '💬 Atención WhatsApp'].map((b) => (
+        {['🚚 Envíos a todo Bolivia', '💬 Atención WhatsApp'].map((b) => (
           <span key={b} className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{b}</span>
         ))}
       </div>
