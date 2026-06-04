@@ -52,8 +52,8 @@ export default function ProductBuyBox({ product }: { product: Product }) {
         return (
           <div className="border-t border-gray-100 pt-4 grid grid-cols-1 gap-2">
             {specs.slice(0, 5).map(({ label, value }) => (
-              <div key={label} className="flex items-start gap-2 text-sm">
-                <span className="text-gray-500 min-w-[90px]">{label}:</span>
+              <div key={label} className="grid grid-cols-[140px_1fr] gap-2 text-sm">
+                <span className="text-gray-500 shrink-0">{label}:</span>
                 <span className="text-gray-800 font-medium">{value}</span>
               </div>
             ))}
