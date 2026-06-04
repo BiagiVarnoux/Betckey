@@ -43,7 +43,7 @@ export default function HeroSlider() {
 
   return (
     <section
-      className="relative text-white transition-all duration-700 overflow-hidden"
+      className="relative text-white overflow-hidden h-[480px] md:h-[580px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -61,7 +61,7 @@ export default function HeroSlider() {
       {/* Dark overlay for text legibility */}
       <div className="absolute inset-0 bg-black/55" />
 
-      <div className="relative max-w-7xl mx-auto px-4 py-24 md:py-32 flex flex-col items-center text-center gap-6">
+      <div className="relative h-full max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center gap-6">
         <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
           {slide.headline}
         </h1>
