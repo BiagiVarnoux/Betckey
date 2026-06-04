@@ -13,7 +13,7 @@ export default function ProductPlaceholder({ model, widthMm, heightMm, labelType
   return (
     <div
       className={`relative bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden ${className}`}
-      style={{ aspectRatio: isLandscape ? '4/3' : '3/4' }}
+      style={{ aspectRatio: isLandscape ? '4/3' : '3/4', width: isLandscape ? '100%' : 'auto', height: isLandscape ? 'auto' : '100%' }}
     >
       <svg
         viewBox="0 0 200 200"

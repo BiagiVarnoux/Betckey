@@ -1,39 +1,92 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import type { Product } from '@/lib/db/schema';
 import ProductPlaceholder from './ProductPlaceholder';
 
-const thumbVariants = ['producto', 'características', 'rollo'] as const;
+interface GalleryImage {
+  src: string;
+  alt: string;
+}
+
+const PRODUCT_IMAGES: Record<string, GalleryImage[]> = {
+  'dk-2205': [
+    {
+      src: '/products/dk-2205/etiquetas-brother-dk-2205-uso-envio-cajas.webp',
+      alt: 'Etiquetas Brother DK-2205 usadas en cajas de envío en cinta transportadora',
+    },
+    {
+      src: '/products/dk-2205/etiquetas-dk-2205-instrucciones-instalacion-rollo.webp',
+      alt: 'Instrucciones de instalación del rollo de etiquetas DK-2205',
+    },
+    {
+      src: '/products/dk-2205/etiquetas-dk-2205-impresoras-brother-ql-compatibles.webp',
+      alt: 'Impresoras Brother QL compatibles con etiquetas DK-2205',
+    },
+    {
+      src: '/products/dk-2205/etiquetas-continuas-dk-2205-caracteristicas-62mm-100pies.webp',
+      alt: 'Características etiqueta continua DK-2205 62mm 100 pies BPA Free',
+    },
+    {
+      src: '/products/dk-2205/rollo-etiqueta-brother-dk-2205-continua-62mm-betckey.webp',
+      alt: 'Rollo etiqueta continua Brother DK-2205 compatible 62mm BETCKEY',
+    },
+  ],
+};
 
 export default function ProductGallery({ product }: { product: Product }) {
+  const images = PRODUCT_IMAGES[product.slug] ?? [];
+  const hasImages = images.length > 0;
   const [active, setActive] = useState(0);
 
+  if (!hasImages) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white p-4">
+          <ProductPlaceholder
+            model={product.model}
+            widthMm={product.widthMm}
+            heightMm={product.heightMm}
+            labelType={product.labelType}
+            className="w-full"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white p-4">
-        <ProductPlaceholder
-          model={product.model}
-          widthMm={product.widthMm}
-          heightMm={product.heightMm}
-          labelType={product.labelType}
-          className="w-full"
+    <div className="flex flex-col gap-3">
+      {/* Imagen principal */}
+      <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white relative aspect-square">
+        <Image
+          src={images[active].src}
+          alt={images[active].alt}
+          fill
+          className="object-contain p-4"
+          priority={active === 0}
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
       </div>
-      <div className="flex gap-3">
-        {thumbVariants.map((v, i) => (
+
+      {/* Miniaturas */}
+      <div className="flex gap-2">
+        {images.map((img, i) => (
           <button
-            key={v}
+            key={img.src}
             onClick={() => setActive(i)}
-            className={`flex-1 rounded-xl border-2 overflow-hidden transition-colors ${
-              active === i ? 'border-[var(--color-primary)]' : 'border-gray-200'
+            className={`relative flex-1 aspect-square rounded-xl border-2 overflow-hidden transition-colors bg-white ${
+              active === i ? 'border-[var(--color-primary)]' : 'border-gray-200 hover:border-gray-300'
             }`}
+            aria-label={`Ver imagen ${i + 1}`}
           >
-            <ProductPlaceholder
-              model={product.model}
-              widthMm={product.widthMm}
-              heightMm={product.heightMm}
-              labelType={product.labelType}
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-contain p-1"
+              sizes="80px"
             />
           </button>
         ))}

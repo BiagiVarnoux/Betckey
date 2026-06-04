@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Menu, X, MessageCircle, Search } from 'lucide-react';
 import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
 
@@ -15,6 +16,10 @@ const navLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const brandName = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'EtiBolivia';
 
   useEffect(() => {
@@ -23,9 +28,31 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
+
+  function openSearch() {
+    setSearchOpen(true);
+    setQuery('');
+  }
+
+  function closeSearch() {
+    setSearchOpen(false);
+    setQuery('');
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    closeSearch();
+    router.push(`/catalogo?q=${encodeURIComponent(q)}`);
+  }
+
   return (
     <header
-      className={`sticky top-0 z-50 bg-white transition-shadow duration-200 ${
+      className={`sticky top-0 z-50 bg-white transition-shadow duration-200 relative ${
         scrolled ? 'shadow-md' : 'shadow-none'
       }`}
     >
@@ -49,9 +76,28 @@ export default function Header() {
           ))}
         </nav>
 
+        {/* Search bar inline */}
+        {searchOpen && (
+          <form onSubmit={handleSearch} className="absolute inset-x-0 top-0 h-16 bg-white flex items-center px-4 gap-2 z-10">
+            <button type="button" onClick={closeSearch} className="p-2 text-gray-400 hover:text-gray-600" aria-label="Cerrar búsqueda">
+              <X size={20} />
+            </button>
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar etiquetas..."
+              className="flex-1 outline-none text-sm text-gray-800 placeholder-gray-400"
+            />
+            <button type="submit" className="p-2 text-[var(--color-primary)]" aria-label="Buscar">
+              <Search size={20} />
+            </button>
+          </form>
+        )}
+
         {/* Icons */}
         <div className="flex items-center gap-3">
-          <button className="p-2 text-gray-600 hover:text-[var(--color-primary)] transition-colors" aria-label="Buscar">
+          <button onClick={openSearch} className="p-2 text-gray-600 hover:text-[var(--color-primary)] transition-colors" aria-label="Buscar">
             <Search size={20} />
           </button>
           <a

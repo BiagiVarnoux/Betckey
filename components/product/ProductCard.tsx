@@ -1,9 +1,17 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { MessageCircle, ArrowRight } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
 import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 import ProductPlaceholder from './ProductPlaceholder';
+
+const PRODUCT_COVER: Record<string, { src: string; alt: string }> = {
+  'dk-2205': {
+    src: '/products/dk-2205/etiquetas-brother-dk-2205-uso-envio-cajas.webp',
+    alt: 'Etiquetas Brother DK-2205 usadas en cajas de envío en cinta transportadora',
+  },
+};
 
 interface Props {
   product: Product;
@@ -12,23 +20,36 @@ interface Props {
 
 export default function ProductCard({ product, showBadge = false }: Props) {
   const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: 1 });
+  const cover = PRODUCT_COVER[product.slug];
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col">
-      <div className="relative">
+      <div className="relative h-52">
         {showBadge && (
           <span className="absolute top-3 left-3 z-10 bg-[var(--color-accent)] text-white text-xs font-bold px-2 py-1 rounded-full">
             Más vendido
           </span>
         )}
-        <Link href={`/productos/${product.slug}`}>
-          <ProductPlaceholder
-            model={product.model}
-            widthMm={product.widthMm}
-            heightMm={product.heightMm}
-            labelType={product.labelType}
-            className="m-4"
-          />
+        <Link href={`/productos/${product.slug}`} className="block w-full h-full">
+          {cover ? (
+            <Image
+              src={cover.src}
+              alt={cover.alt}
+              fill
+              className="object-contain p-4"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <ProductPlaceholder
+                model={product.model}
+                widthMm={product.widthMm}
+                heightMm={product.heightMm}
+                labelType={product.labelType}
+                className="max-h-full"
+              />
+            </div>
+          )}
         </Link>
       </div>
 
