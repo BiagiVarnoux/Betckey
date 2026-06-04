@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, boolean, timestamp, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, boolean, timestamp, decimal, jsonb } from 'drizzle-orm/pg-core';
 
 export const products = pgTable('products', {
   id:             serial('id').primaryKey(),
@@ -24,6 +24,7 @@ export const products = pgTable('products', {
   labelColor:     text('label_color').notNull().default('Negro sobre blanco'),
   adhesiveType:   text('adhesive_type').notNull().default('Permanente (fuerte)'),
   rollCoreMm:     text('roll_core_mm').notNull().default('12mm'),
+  specs:          jsonb('specs').$type<{ label: string; value: string }[]>().notNull().default([]),
   imageUrl:       text('image_url'),
   isActive:       boolean('is_active').notNull().default(true),
   isFeatured:     boolean('is_featured').notNull().default(false),

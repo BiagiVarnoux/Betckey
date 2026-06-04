@@ -116,6 +116,8 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     metaDescription: product.metaDescription ?? '',
     features:        product.features,
     compatibleWith:  product.compatibleWith,
+    // Especificaciones libres
+    specs:           product.specs as { label: string; value: string }[],
   });
 
   const [saving, setSaving] = useState(false);
@@ -146,6 +148,7 @@ export default function EditProductForm({ product }: { product: ProductWithImage
         metaDescription: form.metaDescription || null,
         compatibleWith:  form.compatibleWith.filter(Boolean),
         features:        form.features.filter(Boolean),
+        specs:           form.specs.filter((s) => s.label.trim() || s.value.trim()),
       }),
     });
 
@@ -189,61 +192,70 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     ),
 
     specs: (
-      <div className="flex flex-col gap-5">
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Ancho (mm)">
-            <input type="number" min="0" value={form.widthMm}
-              onChange={(e) => set('widthMm', Number(e.target.value))}
-              className={inputCls} required />
-          </Field>
-          <Field label="Alto (mm)" hint="0 = etiqueta continua">
-            <input type="number" min="0" value={form.heightMm}
-              onChange={(e) => set('heightMm', Number(e.target.value))}
-              className={inputCls} required />
-          </Field>
-          <Field label="Ancho (pulgadas)">
-            <input type="text" value={form.widthIn} placeholder='ej. 1-1/7"'
-              onChange={(e) => set('widthIn', e.target.value)}
-              className={inputCls} required />
-          </Field>
-          <Field label="Alto (pulgadas)">
-            <input type="text" value={form.heightIn} placeholder='ej. 3-1/2"'
-              onChange={(e) => set('heightIn', e.target.value)}
-              className={inputCls} required />
-          </Field>
-          <Field label="Unidades por rollo">
-            <input type="number" min="1" value={form.unitsPerRoll}
-              onChange={(e) => set('unitsPerRoll', Number(e.target.value))}
-              className={inputCls} required />
-          </Field>
-          <Field label="Tipo de etiqueta">
-            <select value={form.labelType} onChange={(e) => set('labelType', e.target.value)}
-              className={inputCls}>
-              <option value="die-cut">Troquelado (die-cut)</option>
-              <option value="continuous">Continuo (continuous)</option>
-            </select>
-          </Field>
-          <Field label="Tipo de impresión">
-            <input type="text" value={form.printType}
-              onChange={(e) => set('printType', e.target.value)} className={inputCls} />
-          </Field>
-          <Field label="Material">
-            <input type="text" value={form.material}
-              onChange={(e) => set('material', e.target.value)} className={inputCls} />
-          </Field>
-          <Field label="Color">
-            <input type="text" value={form.labelColor}
-              onChange={(e) => set('labelColor', e.target.value)} className={inputCls} />
-          </Field>
-          <Field label="Tipo de adhesivo">
-            <input type="text" value={form.adhesiveType}
-              onChange={(e) => set('adhesiveType', e.target.value)} className={inputCls} />
-          </Field>
-          <Field label="Núcleo del rollo">
-            <input type="text" value={form.rollCoreMm}
-              onChange={(e) => set('rollCoreMm', e.target.value)} className={inputCls} />
-          </Field>
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-gray-500">
+          Definí las especificaciones que aparecerán en la tabla de la página del producto.
+          Podés agregar cualquier atributo en el orden que quieras.
+        </p>
+
+        {/* Header */}
+        {form.specs.length > 0 && (
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-2 px-1">
+            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Nombre</span>
+            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Valor</span>
+          </div>
+        )}
+
+        {/* Rows */}
+        <div className="flex flex-col gap-2">
+          {form.specs.map((spec, i) => (
+            <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+              <input
+                type="text"
+                placeholder="Ej: Ancho"
+                value={spec.label}
+                onChange={(e) => {
+                  const next = [...form.specs];
+                  next[i] = { ...next[i], label: e.target.value };
+                  set('specs', next);
+                }}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              />
+              <input
+                type="text"
+                placeholder="Ej: 62mm"
+                value={spec.value}
+                onChange={(e) => {
+                  const next = [...form.specs];
+                  next[i] = { ...next[i], value: e.target.value };
+                  set('specs', next);
+                }}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              />
+              <button
+                type="button"
+                onClick={() => set('specs', form.specs.filter((_, idx) => idx !== i))}
+                className="text-gray-400 hover:text-red-500 transition-colors p-1"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => set('specs', [...form.specs, { label: '', value: '' }])}
+          className="flex items-center gap-1.5 text-sm text-[var(--color-primary)] hover:underline w-fit"
+        >
+          <Plus size={13} /> Agregar especificación
+        </button>
+
+        {form.specs.length === 0 && (
+          <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 text-sm">
+            Sin especificaciones todavía. Hacé clic en "Agregar especificación".
+          </div>
+        )}
       </div>
     ),
 

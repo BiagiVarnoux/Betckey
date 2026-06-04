@@ -30,7 +30,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     'mainUse', 'labelType', 'widthMm', 'heightMm', 'widthIn', 'heightIn', 'unitsPerRoll',
     'compatibleWith', 'features',
     'description', 'metaDescription', 'stock',
-    'model', 'material', 'printType', 'labelColor', 'adhesiveType', 'rollCoreMm',
+    'model', 'material', 'printType', 'labelColor', 'adhesiveType', 'rollCoreMm', 'specs',
   ];
   const update: Record<string, unknown> = {};
   for (const key of allowedFields) {

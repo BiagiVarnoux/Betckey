@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, Ruler, Hash, Printer, Scissors, Package } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
 import QuantitySelector from '@/components/ui/QuantitySelector';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
@@ -45,22 +45,21 @@ export default function ProductBuyBox({ product }: { product: Product }) {
         Te respondemos a la brevedad para coordinar el envío
       </p>
 
-      {/* Quick specs */}
-      <div className="border-t border-gray-100 pt-4 grid grid-cols-1 gap-2">
-        {[
-          { icon: <Ruler size={15} />, label: 'Dimensiones', value: `${product.widthMm}mm × ${product.heightMm > 0 ? product.heightMm + 'mm' : 'continua'} (${product.widthIn} × ${product.heightIn})` },
-          { icon: <Hash size={15} />, label: 'Cantidad', value: `${product.unitsPerRoll} etiquetas por rollo` },
-          { icon: <Printer size={15} />, label: 'Tipo', value: product.labelType === 'die-cut' ? 'Troquelada (tamaño fijo)' : 'Continua (longitud variable)' },
-          { icon: <Scissors size={15} />, label: 'Corte', value: product.labelType === 'die-cut' ? 'Pre-cortada' : 'Manual / automático' },
-          { icon: <Package size={15} />, label: 'Material', value: product.material },
-        ].map(({ icon, label, value }) => (
-          <div key={label} className="flex items-start gap-2 text-sm">
-            <span className="text-gray-400 mt-0.5">{icon}</span>
-            <span className="text-gray-500 min-w-[90px]">{label}:</span>
-            <span className="text-gray-800 font-medium">{value}</span>
+      {/* Quick specs — primeras 5 del array libre */}
+      {(() => {
+        const specs = (product.specs as { label: string; value: string }[] | null) ?? [];
+        if (specs.length === 0) return null;
+        return (
+          <div className="border-t border-gray-100 pt-4 grid grid-cols-1 gap-2">
+            {specs.slice(0, 5).map(({ label, value }) => (
+              <div key={label} className="flex items-start gap-2 text-sm">
+                <span className="text-gray-500 min-w-[90px]">{label}:</span>
+                <span className="text-gray-800 font-medium">{value}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Trust row */}
       <div className="flex flex-wrap gap-3 pt-1">
