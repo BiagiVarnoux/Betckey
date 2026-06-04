@@ -86,14 +86,15 @@ export async function POST(req: Request) {
     if (resendKey && adminEmail && resendKey !== 'your_resend_api_key_here') {
       try {
         const resend = new Resend(resendKey);
-        await resend.emails.send({
+        const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL ?? 'pedidos@yourdomain.com',
           to: adminEmail,
           subject: `Nuevo pedido ${orderNumber} — ${customerName}`,
           html: buildEmailHtml(orderNumber, customerName, customerWhatsapp, customerCity, items, subtotal),
         });
-      } catch {
-        // Email falla silenciosamente — el pedido igual se guardó
+        console.log('[orders] email result:', JSON.stringify(result));
+      } catch (emailErr) {
+        console.error('[orders] email error:', emailErr);
       }
     }
 
