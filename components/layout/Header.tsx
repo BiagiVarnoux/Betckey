@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, X, MessageCircle, Search, ChevronDown } from 'lucide-react';
 import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
+import CartIcon from '@/components/cart/CartIcon';
 
 // Estructura de marcas — agregar Dymo, Zebra, etc. aquí cuando estén disponibles
 const brandMenus = [
@@ -199,7 +200,7 @@ export default function Header() {
         )}
 
         {/* Icons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           <button onClick={openSearch} className="p-2 text-gray-600 hover:text-[var(--color-primary)] transition-colors" aria-label="Buscar">
             <Search size={20} />
           </button>
@@ -212,6 +213,7 @@ export default function Header() {
           >
             <MessageCircle size={22} />
           </a>
+          <CartIcon />
           <button
             className="md:hidden p-2 text-gray-600"
             onClick={() => setMenuOpen(true)}

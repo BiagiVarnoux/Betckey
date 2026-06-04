@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, PackageCheck, PackageMinus, PackageX, AlertTriangle } from 'lucide-react';
+import { CheckCircle, PackageCheck, PackageMinus, PackageX, AlertTriangle, ShoppingCart, Check } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
 import QuantitySelector from '@/components/ui/QuantitySelector';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
+import { useCart } from '@/context/CartContext';
 
 type StockThresholds = { stockGreenThreshold: number; stockYellowThreshold: number };
 
@@ -38,9 +39,26 @@ function StockBadge({ stock, thresholds }: { stock: number | null | string; thre
 
 export default function ProductBuyBox({ product, thresholds }: { product: Product; thresholds: StockThresholds }) {
   const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
   const outOfStock = Number(product.stock) === 0 && product.stock !== null;
+  const { addItem } = useCart();
 
   const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: qty });
+
+  function handleAddToCart() {
+    for (let i = 0; i < qty; i++) {
+      addItem({
+        productId: product.id,
+        slug: product.slug,
+        name: product.name,
+        model: product.model,
+        priceBob: product.priceBob ?? null,
+        imageUrl: product.imageUrl ?? null,
+      });
+    }
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -75,7 +93,16 @@ export default function ProductBuyBox({ product, thresholds }: { product: Produc
           Sin stock disponible
         </button>
       ) : (
-        <WhatsAppButton href={waUrl} label="🟢 Pedir por WhatsApp" size="lg" className="w-full justify-center" />
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={handleAddToCart}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark,#1a3a6b)] text-white transition-colors"
+          >
+            {added ? <Check size={18} /> : <ShoppingCart size={18} />}
+            {added ? '¡Agregado al carrito!' : 'Agregar al carrito'}
+          </button>
+          <WhatsAppButton href={waUrl} label="🟢 Pedir por WhatsApp" size="lg" className="w-full justify-center" />
+        </div>
       )}
 
       <p className="text-sm text-gray-500 text-center">

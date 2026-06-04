@@ -4,10 +4,11 @@ import { db } from '@/lib/db';
 import { products, productImages } from '@/lib/db/schema';
 import { eq, asc, max } from 'drizzle-orm';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/session';
 
 async function requireAdmin() {
   const c = await cookies();
-  return c.get('admin_session')?.value === process.env.ADMIN_PASSWORD;
+  return verifySessionToken(c.get('admin_session')?.value);
 }
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];

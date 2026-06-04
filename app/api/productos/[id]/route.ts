@@ -3,12 +3,11 @@ import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/session';
 
-function requireAdmin() {
-  return cookies().then((c) => {
-    const session = c.get('admin_session');
-    return session?.value === process.env.ADMIN_PASSWORD;
-  });
+async function requireAdmin() {
+  const c = await cookies();
+  return verifySessionToken(c.get('admin_session')?.value);
 }
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {

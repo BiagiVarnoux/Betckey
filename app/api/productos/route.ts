@@ -3,6 +3,12 @@ import { getAllProductsAdmin } from '@/lib/products';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/session';
+
+async function requireAdmin() {
+  const c = await cookies();
+  return verifySessionToken(c.get('admin_session')?.value);
+}
 
 export async function GET() {
   const all = await getAllProductsAdmin();
@@ -10,9 +16,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('admin_session');
-  if (!session || session.value !== process.env.ADMIN_PASSWORD) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 

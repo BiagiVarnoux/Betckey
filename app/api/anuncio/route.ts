@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/session';
 import { db } from '@/lib/db';
 import { announcementMessages } from '@/lib/db/schema';
 import { asc } from 'drizzle-orm';
 
-function isAuthorized(session: { value: string } | undefined) {
-  return session?.value === process.env.ADMIN_PASSWORD;
+async function requireAdmin() {
+  const c = await cookies();
+  return verifySessionToken(c.get('admin_session')?.value);
 }
 
 export async function GET() {
@@ -17,8 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
-  if (!isAuthorized(cookieStore.get('admin_session'))) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 

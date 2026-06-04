@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifySessionToken } from '@/lib/session';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const session = request.cookies.get('admin_session');
-    if (!session || session.value !== process.env.ADMIN_PASSWORD) {
+    const token = request.cookies.get('admin_session')?.value;
+    if (!verifySessionToken(token)) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }

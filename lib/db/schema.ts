@@ -56,8 +56,34 @@ export const announcementMessages = pgTable('announcement_messages', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const orders = pgTable('orders', {
+  id:               serial('id').primaryKey(),
+  orderNumber:      text('order_number').notNull().unique(),
+  customerName:     text('customer_name').notNull(),
+  customerWhatsapp: text('customer_whatsapp').notNull(),
+  customerCity:     text('customer_city').notNull(),
+  items:            jsonb('items').$type<OrderItem[]>().notNull(),
+  subtotal:         decimal('subtotal', { precision: 10, scale: 2 }),
+  status:           text('status').notNull().default('pending'),
+  notes:            text('notes'),
+  createdAt:        timestamp('created_at').defaultNow(),
+  updatedAt:        timestamp('updated_at').defaultNow(),
+});
+
+export type OrderItem = {
+  productId: number;
+  slug: string;
+  name: string;
+  model: string;
+  priceBob: string | null;
+  imageUrl: string | null;
+  quantity: number;
+};
+
 export type StoreSettings = typeof storeSettings.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductImage = typeof productImages.$inferSelect;
 export type AnnouncementMessage = typeof announcementMessages.$inferSelect;
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;

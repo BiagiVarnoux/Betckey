@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/session';
 import { getStoreSettings, upsertStoreSettings } from '@/lib/settings';
 
 async function requireAdmin() {
   const c = await cookies();
-  return c.get('admin_session')?.value === process.env.ADMIN_PASSWORD;
+  return verifySessionToken(c.get('admin_session')?.value);
 }
 
 export async function GET() {
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
   const settings = await getStoreSettings();
   return NextResponse.json(settings);
 }
