@@ -12,20 +12,40 @@ export const metadata: Metadata = {
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
+function getParam(v: string | string[] | undefined): string {
+  return typeof v === 'string' ? v.trim() : '';
+}
+
 export default async function CatalogoPage({ searchParams }: Props) {
   const params = await searchParams;
-  const q = typeof params.q === 'string' ? params.q.trim().toLowerCase() : '';
+  const q       = getParam(params.q).toLowerCase();
+  const modelo  = getParam(params.modelo).toUpperCase();
+  const printer = getParam(params.printer).toUpperCase();
+  const medida  = getParam(params.medida).toLowerCase();
+
   const allProducts = await getAllProducts();
-  const products = q
-    ? allProducts.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.model.toLowerCase().includes(q) ||
-          p.labelType.toLowerCase().includes(q) ||
-          p.mainUse.toLowerCase().includes(q) ||
-          p.compatibleWith.some((printer) => printer.toLowerCase().includes(q)),
-      )
-    : allProducts;
+
+  const products = allProducts.filter((p) => {
+    if (modelo  && p.model.toUpperCase() !== modelo) return false;
+    if (printer && !p.compatibleWith.some((c) => c.toUpperCase() === printer)) return false;
+    if (medida) {
+      const size = `${p.widthIn}x${p.heightIn}`.toLowerCase().replace(/["\s]/g, '');
+      if (!size.includes(medida.replace(/["\s]/g, ''))) return false;
+    }
+    if (q) {
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.model.toLowerCase().includes(q) ||
+        p.labelType.toLowerCase().includes(q) ||
+        p.mainUse.toLowerCase().includes(q) ||
+        p.compatibleWith.some((c) => c.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+
+  // Etiqueta del filtro activo para mostrar en UI
+  const activeFilter = modelo || printer || (medida ? `Medida ${medida}` : '') || (q ? `"${q}"` : '');
   const waUrl = buildWhatsAppDirectURL();
 
   return (
@@ -41,11 +61,11 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          {q && (
+          {activeFilter && (
             <p className="text-sm text-gray-500 mb-6">
               {products.length > 0
-                ? `${products.length} resultado${products.length !== 1 ? 's' : ''} para "${q}"`
-                : `Sin resultados para "${q}"`}
+                ? `${products.length} producto${products.length !== 1 ? 's' : ''} — ${activeFilter}`
+                : `Sin resultados para ${activeFilter}`}
             </p>
           )}
           {products.length > 0 ? (
@@ -57,7 +77,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
           ) : (
             <div className="text-center py-20 text-gray-400">
               <p className="text-lg font-medium">No encontramos productos con ese nombre.</p>
-              <a href="/catalogo" className="mt-4 inline-block text-[var(--color-primary)] underline text-sm">Ver todo el catálogo</a>
+              <a href="/catalogo?marca=brother" className="mt-4 inline-block text-[var(--color-primary)] underline text-sm">Ver todo el catálogo Brother</a>
             </div>
           )}
         </div>

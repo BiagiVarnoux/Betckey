@@ -1,26 +1,29 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle, ArrowRight } from 'lucide-react';
-import type { Product } from '@/lib/db/schema';
+import type { ProductWithImages } from '@/lib/products';
 import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 import ProductPlaceholder from './ProductPlaceholder';
 
-const PRODUCT_COVER: Record<string, { src: string; alt: string }> = {
+// Cover legacy para DK-2205 cuando no hay imágenes en DB
+const LEGACY_COVER: Record<string, { src: string; alt: string }> = {
   'dk-2205': {
     src: '/products/dk-2205/etiquetas-brother-dk-2205-uso-envio-cajas.webp',
-    alt: 'Etiquetas Brother DK-2205 usadas en cajas de envío en cinta transportadora',
+    alt: 'Etiquetas Brother DK-2205 usadas en cajas de envío',
   },
 };
 
 interface Props {
-  product: Product;
+  product: ProductWithImages;
   showBadge?: boolean;
 }
 
 export default function ProductCard({ product, showBadge = false }: Props) {
   const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: 1 });
-  const cover = PRODUCT_COVER[product.slug];
+  // DB tiene prioridad, luego legacy, luego placeholder
+  const dbCover = product.images[0] ? { src: product.images[0].url, alt: product.images[0].alt } : null;
+  const cover = dbCover ?? LEGACY_COVER[product.slug] ?? null;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col">

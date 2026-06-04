@@ -1,8 +1,8 @@
-import type { Product } from '@/lib/db/schema';
+import type { ProductWithImages } from '@/lib/products';
 import ProductCard from '@/components/product/ProductCard';
 
 interface Props {
-  products: Product[];
+  products: ProductWithImages[];
 }
 
 export default function ProductsGrid({ products }: Props) {

@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Product } from '@/lib/db/schema';
+import type { ProductWithImages } from '@/lib/products';
 import { Save, CheckCircle } from 'lucide-react';
+import ImageManager from '@/components/admin/ImageManager';
 
-export default function EditProductForm({ product }: { product: Product }) {
+export default function EditProductForm({ product }: { product: ProductWithImages }) {
   const router = useRouter();
   const [form, setForm] = useState({
     name: product.name,
@@ -49,7 +50,7 @@ export default function EditProductForm({ product }: { product: Product }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-6">
-      {/* Precio BOB — campo principal destacado */}
+      {/* Precio BOB */}
       <div className="bg-orange-50 border-2 border-[var(--color-accent)] rounded-xl p-5">
         <label className="block text-sm font-bold text-gray-900 mb-1">
           💰 Precio en BOB <span className="text-[var(--color-accent)]">(campo principal)</span>
@@ -147,6 +148,9 @@ export default function EditProductForm({ product }: { product: Product }) {
           </>
         )}
       </button>
+
+      {/* Imágenes — fuera del submit, manejo independiente */}
+      <ImageManager productId={product.id} initialImages={product.images} />
     </form>
   );
 }

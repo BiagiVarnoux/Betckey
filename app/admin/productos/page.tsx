@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllProductsAdmin } from '@/lib/products';
 import { formatBob } from '@/lib/utils';
-import { ArrowLeft, Pencil, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Pencil, AlertTriangle, ImageIcon } from 'lucide-react';
 
 export default async function AdminProductosPage() {
   const products = await getAllProductsAdmin();
@@ -21,6 +22,7 @@ export default async function AdminProductosPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="px-6 py-4 w-12" />
               <th className="text-left px-6 py-4 font-semibold text-gray-700">Modelo</th>
               <th className="text-left px-6 py-4 font-semibold text-gray-700 hidden md:table-cell">Nombre</th>
               <th className="text-left px-6 py-4 font-semibold text-gray-700">Precio BOB</th>
@@ -31,6 +33,15 @@ export default async function AdminProductosPage() {
           <tbody className="divide-y divide-gray-100">
             {products.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                <td className="pl-6 py-3">
+                  <div className="w-10 h-10 rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+                    {p.imageUrl ? (
+                      <Image src={p.imageUrl} alt={p.model} width={40} height={40} className="object-contain w-full h-full" />
+                    ) : (
+                      <ImageIcon size={16} className="text-gray-300" />
+                    )}
+                  </div>
+                </td>
                 <td className="px-6 py-4 font-mono font-semibold text-[var(--color-primary)]">{p.model}</td>
                 <td className="px-6 py-4 text-gray-700 hidden md:table-cell max-w-xs truncate">{p.name}</td>
                 <td className="px-6 py-4">
