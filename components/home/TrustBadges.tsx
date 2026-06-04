@@ -1,7 +1,6 @@
 const badges = [
-  { icon: '🛡️', title: '100% Compatible', desc: 'Con toda la serie Brother QL' },
   { icon: '📦', title: 'Venta por unidad', desc: 'Sin mínimo de compra' },
-  { icon: '✈️', title: 'Envío a Bolivia', desc: 'Coordinamos el despacho' },
+  { icon: '🚚', title: 'Envíos a todo Bolivia', desc: 'Entrega en 3-7 días laborables' },
   { icon: '💬', title: 'Atención WhatsApp', desc: 'Respondemos a la brevedad' },
 ];
 

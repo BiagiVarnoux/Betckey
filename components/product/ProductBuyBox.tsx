@@ -64,7 +64,7 @@ export default function ProductBuyBox({ product }: { product: Product }) {
 
       {/* Trust row */}
       <div className="flex flex-wrap gap-3 pt-1">
-        {['✅ 100% Compatible', '📦 Stock disponible', '🚚 Envío Bolivia'].map((b) => (
+        {['📦 Stock disponible', '🚚 Envíos a todo Bolivia', '💬 Atención WhatsApp'].map((b) => (
           <span key={b} className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{b}</span>
         ))}
       </div>
