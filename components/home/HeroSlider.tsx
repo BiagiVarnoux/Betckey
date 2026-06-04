@@ -8,21 +8,21 @@ import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
 const slides = [
   {
     headline: 'Etiquetas de calidad premium para tu impresora Brother',
-    sub: 'Compatible con toda la serie QL. Envío a todo Bolivia.',
+    sub: 'Sin residuo, resistentes al agua y al desgarro. Envío a todo Bolivia.',
     cta: { label: 'Ver catálogo', href: '/catalogo', primary: true },
-    gradient: 'from-[#1B2E5E] to-[#2D5FA6]',
+    image: '/hero-1.jpg',
   },
   {
     headline: 'Imprime sin complicaciones',
-    sub: 'Solo insertás el cartucho y empezás a imprimir. Sin configuración extra.',
+    sub: 'Compatible con toda la serie QL. Solo insertás el rollo y empezás.',
     cta: { label: 'Ver catálogo', href: '/catalogo', primary: true },
-    gradient: 'from-[#1B3A6B] to-[#1B2E5E]',
+    image: '/hero-2.jpg',
   },
   {
     headline: '¿Tenés una impresora Brother QL?',
     sub: 'Nuestras etiquetas BETCKEY son 100% compatibles. Consultanos sin compromiso.',
     cta: { label: 'Consultar por WhatsApp', href: '#whatsapp', primary: false },
-    gradient: 'from-[#0F2040] to-[#1B2E5E]',
+    image: '/hero-3.jpg',
   },
 ];
 
@@ -43,30 +43,23 @@ export default function HeroSlider() {
 
   return (
     <section
-      className={`relative bg-gradient-to-br ${slide.gradient} text-white transition-all duration-700 overflow-hidden`}
+      className="relative text-white transition-all duration-700 overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Decorative SVG pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <svg viewBox="0 0 600 400" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
-          {Array.from({ length: 12 }).map((_, i) =>
-            Array.from({ length: 8 }).map((_, j) => (
-              <rect
-                key={`${i}-${j}`}
-                x={i * 55 - 20}
-                y={j * 60 - 20}
-                width="38"
-                height="50"
-                rx="4"
-                fill="none"
-                stroke="white"
-                strokeWidth="1"
-              />
-            ))
-          )}
-        </svg>
-      </div>
+      {/* Background images — all stacked, fade in/out */}
+      {slides.map((s, i) => (
+        <div
+          key={s.image}
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
+          style={{
+            backgroundImage: `url(${s.image})`,
+            opacity: i === current ? 1 : 0,
+          }}
+        />
+      ))}
+      {/* Dark overlay for text legibility */}
+      <div className="absolute inset-0 bg-black/55" />
 
       <div className="relative max-w-7xl mx-auto px-4 py-24 md:py-32 flex flex-col items-center text-center gap-6">
         <h1 className="text-3xl md:text-5xl font-bold max-w-3xl leading-tight">
