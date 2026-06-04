@@ -8,7 +8,7 @@ import CompatiblePrinters from '@/components/product/CompatiblePrinters';
 import SpecsTable from '@/components/product/SpecsTable';
 import FAQAccordion from '@/components/product/FAQAccordion';
 import StickyBuyBar from '@/components/product/StickyBuyBar';
-import { ChevronRight, Zap, Shield, Package2 } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,23 +19,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const brand = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'EtiBolivia';
 
+  const autoDesc = `Comprar ${product.model} en Bolivia. ${product.mainUse}. ${product.unitsPerRoll} etiquetas por rollo. Envío a todo Bolivia.`;
+  const metaDesc = product.metaDescription ?? autoDesc;
+
   return {
     title: `${product.name} | ${brand}`,
-    description: `Comprar ${product.model} en Bolivia. ${product.mainUse}. ${product.unitsPerRoll} etiquetas por rollo. Envío a todo Bolivia.`,
+    description: metaDesc,
     openGraph: {
       title: product.name,
-      description: `${product.model}: ${product.mainUse}. ${product.unitsPerRoll} etiquetas/rollo. Compatible con Brother QL.`,
+      description: metaDesc,
       type: 'website',
       locale: 'es_BO',
     },
   };
 }
-
-const featureBlocks = [
-  { icon: <Zap size={24} />, title: 'Impresión nítida', desc: 'Tecnología térmica directa para texto y códigos de barra perfectos.' },
-  { icon: <Shield size={24} />, title: 'Adhesivo duradero', desc: 'Aguanta de -10°C a 70°C. Adhesión permanente en superficies lisas y rugosas.' },
-  { icon: <Package2 size={24} />, title: 'Fácil de usar', desc: 'Cartucho reutilizable pre-instalado. Insertar y listo — sin configuración.' },
-];
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -79,18 +76,25 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <ProductBuyBox product={product} />
         </div>
 
-        {/* Feature blocks */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-          {featureBlocks.map((f) => (
-            <div key={f.title} className="bg-[var(--color-surface)] rounded-xl p-6 flex gap-4">
-              <div className="text-[var(--color-primary)] flex-shrink-0 mt-0.5">{f.icon}</div>
-              <div>
-                <h3 className="font-bold text-gray-900 mb-1">{f.title}</h3>
-                <p className="text-sm text-gray-600">{f.desc}</p>
+        {/* Características dinámicas del producto */}
+        {product.features.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            {product.features.map((f) => (
+              <div key={f} className="bg-[var(--color-surface)] rounded-xl px-5 py-4 flex items-start gap-3">
+                <span className="text-[var(--color-primary)] font-bold text-lg leading-none mt-0.5">✓</span>
+                <p className="text-sm text-gray-700">{f}</p>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* Descripción larga */}
+        {product.description && (
+          <div className="py-8 border-t border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Descripción</h2>
+            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{product.description}</p>
+          </div>
+        )}
 
         <CompatiblePrinters compatibleWith={product.compatibleWith} model={product.model} />
         <SpecsTable product={product} />
