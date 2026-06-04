@@ -38,8 +38,8 @@ export default function ImageManager({ productId, initialImages }: Props) {
         }
       }
       router.refresh();
-    } catch {
-      setUploadError('Error de conexión. Intentá de nuevo.');
+    } catch (err) {
+      setUploadError(`Error: ${err instanceof Error ? err.message : 'Intentá de nuevo.'}`);
     } finally {
       setUploading(false);
     }
