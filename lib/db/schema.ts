@@ -33,6 +33,15 @@ export const productImages = pgTable('product_images', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const announcementMessages = pgTable('announcement_messages', {
+  id:        serial('id').primaryKey(),
+  text:      text('text').notNull(),
+  isActive:  boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductImage = typeof productImages.$inferSelect;
+export type AnnouncementMessage = typeof announcementMessages.$inferSelect;

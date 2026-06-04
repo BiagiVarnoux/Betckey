@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getAllProductsAdmin } from '@/lib/products';
-import { Package, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Package, AlertTriangle, CheckCircle, Megaphone } from 'lucide-react';
 import LogoutButton from './LogoutButton';
 
 export default async function AdminDashboard() {
@@ -42,13 +42,22 @@ export default async function AdminDashboard() {
         />
       </div>
 
-      <Link
-        href="/admin/productos"
-        className="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
-      >
-        <Package size={18} />
-        Gestionar productos
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/admin/productos"
+          className="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+        >
+          <Package size={18} />
+          Gestionar productos
+        </Link>
+        <Link
+          href="/admin/anuncio"
+          className="inline-flex items-center gap-2 border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+        >
+          <Megaphone size={18} />
+          Barra de anuncios
+        </Link>
+      </div>
     </div>
   );
 }
