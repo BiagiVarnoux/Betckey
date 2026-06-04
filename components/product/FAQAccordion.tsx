@@ -10,11 +10,11 @@ const faqs = [
   },
   {
     q: '¿Necesito configurar mi impresora?',
-    a: 'No. Solo insertás el cartucho directamente en tu impresora Brother QL y empezás a imprimir. Las etiquetas BETCKEY vienen con cartuchos reutilizables pre-instalados, sin necesidad de configuración extra.',
+    a: 'No. Solo inserta el cartucho directamente en tu impresora Brother QL y comienza a imprimir. Las etiquetas BETCKEY vienen con cartuchos reutilizables pre-instalados, sin necesidad de configuración adicional.',
   },
   {
-    q: '¿Puedo comprar de a 1 rollo?',
-    a: 'Sí, vendemos por unidad sin mínimo de compra. Podés pedir el rollo que necesitás y coordinamos el envío a tu ciudad.',
+    q: '¿Puedo comprar solo 1 rollo?',
+    a: 'Sí, vendemos por unidad sin mínimo de compra. Puedes pedir el rollo que necesitas y coordinamos el envío a tu ciudad.',
   },
   {
     q: '¿Hacen envíos a mi ciudad?',

@@ -1,9 +1,9 @@
 import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
 
 const steps = [
-  { num: '1', title: 'Elegí tu etiqueta', desc: 'Buscá el modelo compatible con tu impresora Brother QL en nuestro catálogo.' },
-  { num: '2', title: 'Escribinos por WhatsApp', desc: 'Envianos un mensaje con el modelo y la cantidad que necesitás. Te respondemos al momento.' },
-  { num: '3', title: 'Recibí tu pedido', desc: 'Coordinamos el envío a tu ciudad. Entregamos en todo Bolivia.' },
+  { num: '1', title: 'Elige tu etiqueta', desc: 'Busca el modelo compatible con tu impresora Brother QL en nuestro catálogo.' },
+  { num: '2', title: 'Escríbenos por WhatsApp', desc: 'Envíanos un mensaje con el modelo y la cantidad que necesitas. Te respondemos al momento.' },
+  { num: '3', title: 'Recibe tu pedido', desc: 'Coordinamos el envío a tu ciudad. Entregamos en todo Bolivia.' },
 ];
 
 export default function HowToOrder() {

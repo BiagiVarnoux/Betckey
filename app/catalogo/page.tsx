@@ -85,8 +85,8 @@ export default async function CatalogoPage({ searchParams }: Props) {
 
       <section className="bg-[var(--color-surface)] py-12 px-4 text-center">
         <div className="max-w-xl mx-auto">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">¿No sabés qué modelo necesitás?</h2>
-          <p className="text-gray-500 mb-6">Contanos el modelo de tu impresora Brother y te ayudamos a elegir la etiqueta correcta.</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">¿No sabes qué modelo necesitas?</h2>
+          <p className="text-gray-500 mb-6">Cuéntanos el modelo de tu impresora Brother y te ayudamos a elegir la etiqueta correcta.</p>
           <a
             href={waUrl}
             target="_blank"

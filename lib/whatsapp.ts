@@ -8,7 +8,7 @@ export function buildWhatsAppURL({
   quantity: number;
 }): string {
   const number = process.env.NEXT_PUBLIC_WHATSAPP;
-  const message = `Hola! Me interesa comprar:\nProducto: ${product}\nModelo: ${model}\nCantidad: ${quantity} rollo${quantity > 1 ? 's' : ''}\n¿Podría darme más información y coordinar el envío?`;
+  const message = `Hola, me interesa comprar:\nProducto: ${product}\nModelo: ${model}\nCantidad: ${quantity} rollo${quantity > 1 ? 's' : ''}\n¿Podrían darme más información y coordinar el envío?`;
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 

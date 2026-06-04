@@ -14,13 +14,13 @@ const slides = [
   },
   {
     headline: 'Imprime sin complicaciones',
-    sub: 'Compatible con toda la serie QL. Solo insertás el rollo y empezás.',
+    sub: 'Compatible con toda la serie QL. Solo inserta el rollo y comienza a imprimir.',
     cta: { label: 'Ver catálogo', href: '/catalogo', primary: true },
     image: '/hero-2.jpg',
   },
   {
-    headline: '¿Tenés una impresora Brother QL?',
-    sub: 'Nuestras etiquetas BETCKEY son 100% compatibles. Consultanos sin compromiso.',
+    headline: '¿Tienes una impresora Brother QL?',
+    sub: 'Nuestras etiquetas BETCKEY son 100% compatibles. Consúltanos sin compromiso.',
     cta: { label: 'Consultar por WhatsApp', href: '#whatsapp', primary: false },
     image: '/hero-3.jpg',
   },

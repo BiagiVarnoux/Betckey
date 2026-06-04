@@ -45,7 +45,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-[var(--color-whatsapp)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            💬 Escribinos por WhatsApp
+            💬 Escríbenos por WhatsApp
           </a>
           <p className="text-xs text-blue-300 mt-4">Atención: Lunes a Sábado 9:00 - 20:00</p>
         </div>

@@ -107,7 +107,7 @@ export default function ImageManager({ productId, initialImages }: Props) {
           <ImageIcon size={16} />
           Imágenes del producto
           {images.length > 0 && (
-            <span className="text-xs font-normal text-gray-400">({images.length} — arrastrá para reordenar)</span>
+            <span className="text-xs font-normal text-gray-400">({images.length} — arrastra para reordenar)</span>
           )}
         </p>
         {images.length > 0 && (
@@ -137,9 +137,9 @@ export default function ImageManager({ productId, initialImages }: Props) {
         )}
         <div className="text-center">
           <p className="text-sm font-medium text-gray-700">
-            {uploading ? 'Subiendo...' : 'Arrastrá imágenes aquí o hacé clic para seleccionar'}
+            {uploading ? 'Subiendo...' : 'Arrastra imágenes aquí o haz clic para seleccionar'}
           </p>
-          <p className="text-xs text-gray-400 mt-1">JPG, PNG o WebP · máx. 5 MB por imagen · podés subir varias</p>
+          <p className="text-xs text-gray-400 mt-1">JPG, PNG o WebP · máx. 5 MB por imagen · puedes subir varias</p>
         </div>
         <input
           ref={fileInputRef}
