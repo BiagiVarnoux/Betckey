@@ -25,19 +25,24 @@ export default function ImageManager({ productId, initialImages }: Props) {
     if (arr.length === 0) return;
     setUploading(true);
     setUploadError('');
-    for (const file of arr) {
-      const fd = new FormData();
-      fd.append('imagen', file);
-      const res = await fetch(`/api/productos/${productId}/imagen`, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (res.ok) {
-        setImages((prev) => [...prev, data]);
-      } else {
-        setUploadError(data.error ?? 'Error al subir imagen.');
+    try {
+      for (const file of arr) {
+        const fd = new FormData();
+        fd.append('imagen', file);
+        const res = await fetch(`/api/productos/${productId}/imagen`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (res.ok) {
+          setImages((prev) => [...prev, data]);
+        } else {
+          setUploadError(data.error ?? 'Error al subir imagen.');
+        }
       }
+      router.refresh();
+    } catch {
+      setUploadError('Error de conexión. Intentá de nuevo.');
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    router.refresh();
   }
 
   // Drop zone handlers

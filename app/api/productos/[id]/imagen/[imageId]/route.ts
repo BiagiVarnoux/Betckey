@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { del } from '@vercel/blob';
 import { db } from '@/lib/db';
 import { products, productImages } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
@@ -21,13 +19,11 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   const [img] = await db.select().from(productImages).where(eq(productImages.id, Number(imageId))).limit(1);
   if (!img) return NextResponse.json({ error: 'Imagen no encontrada' }, { status: 404 });
 
-  // Eliminar archivo físico
-  const filePath = path.join(process.cwd(), 'public', img.url.replace(/^\//, ''));
-  if (existsSync(filePath)) await unlink(filePath).catch(() => {});
+  // Eliminar del Blob store
+  await del(img.url).catch(() => {});
 
   await db.delete(productImages).where(eq(productImages.id, Number(imageId)));
 
-  // Actualizar cover del producto con la primera imagen restante
   const remaining = await db
     .select()
     .from(productImages)

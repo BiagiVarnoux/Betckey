@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir, unlink } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { db } from '@/lib/db';
 import { products, productImages } from '@/lib/db/schema';
 import { eq, asc, max } from 'drizzle-orm';
@@ -48,23 +46,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const ext = file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/png' ? 'png' : 'webp';
 
-  // Calcular siguiente sortOrder
   const [{ maxOrder }] = await db
     .select({ maxOrder: max(productImages.sortOrder) })
     .from(productImages)
     .where(eq(productImages.productId, Number(id)));
   const nextOrder = (maxOrder ?? -1) + 1;
 
-  const dir = path.join(process.cwd(), 'public', 'products', product.slug);
-  if (!existsSync(dir)) await mkdir(dir, { recursive: true });
+  const filename = `products/${product.slug}/${product.slug}-${nextOrder}.${ext}`;
+  const { url } = await put(filename, file, { access: 'public' });
 
-  const filename = `${product.slug}-${nextOrder}.${ext}`;
-  const filePath = path.join(dir, filename);
-  await writeFile(filePath, Buffer.from(await file.arrayBuffer()));
-
-  const url = `/products/${product.slug}/${filename}`;
   const alt = `${product.name} — imagen ${nextOrder + 1}`;
-
   const [created] = await db.insert(productImages).values({
     productId: Number(id),
     url,
@@ -72,7 +63,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     sortOrder: nextOrder,
   }).returning();
 
-  // Si es la primera imagen, actualizar cover del producto
   if (nextOrder === 0) {
     await db.update(products).set({ imageUrl: url, updatedAt: new Date() }).where(eq(products.id, Number(id)));
   }
@@ -80,7 +70,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   return NextResponse.json(created);
 }
 
-// Reordenar: recibe [{ id, sortOrder }]
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await requireAdmin())) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
@@ -95,7 +84,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     )
   );
 
-  // Actualizar cover con la imagen de sortOrder 0
   const first = body.find((x) => x.sortOrder === 0);
   if (first) {
     const [img] = await db.select().from(productImages).where(eq(productImages.id, first.id)).limit(1);
