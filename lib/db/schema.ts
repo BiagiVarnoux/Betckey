@@ -42,6 +42,12 @@ export const productImages = pgTable('product_images', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const storeSettings = pgTable('store_settings', {
+  id:                     serial('id').primaryKey(),
+  stockGreenThreshold:    integer('stock_green_threshold').notNull().default(10),
+  stockYellowThreshold:   integer('stock_yellow_threshold').notNull().default(3),
+});
+
 export const announcementMessages = pgTable('announcement_messages', {
   id:        serial('id').primaryKey(),
   text:      text('text').notNull(),
@@ -50,6 +56,7 @@ export const announcementMessages = pgTable('announcement_messages', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export type StoreSettings = typeof storeSettings.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductImage = typeof productImages.$inferSelect;

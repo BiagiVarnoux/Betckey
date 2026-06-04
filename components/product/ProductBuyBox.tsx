@@ -8,20 +8,23 @@ import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 
-function StockBadge({ stock }: { stock: number | null | string }) {
+type StockThresholds = { stockGreenThreshold: number; stockYellowThreshold: number };
+
+function StockBadge({ stock, thresholds }: { stock: number | null | string; thresholds: StockThresholds }) {
   const n = stock === null || stock === '' ? null : Number(stock);
+  const { stockGreenThreshold: green, stockYellowThreshold: yellow } = thresholds;
   if (n === null) return null;
-  if (n === 0)  return (
+  if (n === 0) return (
     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
       <PackageX size={15} /> Sin stock
     </span>
   );
-  if (n <= 3)   return (
+  if (n <= yellow) return (
     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
       <AlertTriangle size={15} /> ¡Últimas {n} {n === 1 ? 'unidad' : 'unidades'}!
     </span>
   );
-  if (n <= 10)  return (
+  if (n <= green) return (
     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
       <PackageMinus size={15} /> Quedan {n} unidades
     </span>
@@ -33,7 +36,7 @@ function StockBadge({ stock }: { stock: number | null | string }) {
   );
 }
 
-export default function ProductBuyBox({ product }: { product: Product }) {
+export default function ProductBuyBox({ product, thresholds }: { product: Product; thresholds: StockThresholds }) {
   const [qty, setQty] = useState(1);
   const outOfStock = Number(product.stock) === 0 && product.stock !== null;
 
@@ -60,7 +63,7 @@ export default function ProductBuyBox({ product }: { product: Product }) {
         )}
       </div>
 
-      <StockBadge stock={product.stock} />
+      <StockBadge stock={product.stock} thresholds={thresholds} />
 
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">Cantidad:</span>

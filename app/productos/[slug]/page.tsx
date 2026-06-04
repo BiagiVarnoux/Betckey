@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getProductBySlug, getAllProducts } from '@/lib/products';
+import { getStoreSettings } from '@/lib/settings';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductBuyBox from '@/components/product/ProductBuyBox';
 import CompatiblePrinters from '@/components/product/CompatiblePrinters';
@@ -36,7 +37,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, thresholds] = await Promise.all([
+    getProductBySlug(slug),
+    getStoreSettings(),
+  ]);
   if (!product) notFound();
 
   const brand = process.env.NEXT_PUBLIC_BRAND_NAME ?? 'EtiBolivia';
@@ -73,7 +77,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
           <ProductGallery product={product} />
-          <ProductBuyBox product={product} />
+          <ProductBuyBox product={product} thresholds={thresholds} />
         </div>
 
         {/* Características dinámicas del producto */}
