@@ -9,7 +9,16 @@ interface Props {
   max?: number;
 }
 
-export default function QuantitySelector({ value, onChange, min = 1, max = 10 }: Props) {
+export default function QuantitySelector({ value, onChange, min = 1, max }: Props) {
+  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value;
+    if (raw === '') return;
+    const n = parseInt(raw, 10);
+    if (isNaN(n)) return;
+    const clamped = Math.max(min, max !== undefined ? Math.min(max, n) : n);
+    onChange(clamped);
+  }
+
   return (
     <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden w-fit">
       <button
@@ -20,11 +29,19 @@ export default function QuantitySelector({ value, onChange, min = 1, max = 10 }:
       >
         <Minus size={16} />
       </button>
-      <span className="px-5 py-2 font-semibold text-center min-w-[50px]">{value}</span>
+      <input
+        type="number"
+        value={value}
+        onChange={handleInput}
+        min={min}
+        max={max}
+        className="px-2 py-2 font-semibold text-center min-w-[50px] w-[60px] border-none outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        aria-label="Cantidad"
+      />
       <button
-        onClick={() => onChange(Math.min(max, value + 1))}
+        onClick={() => onChange(max !== undefined ? Math.min(max, value + 1) : value + 1)}
         className="px-3 py-2 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-40"
-        disabled={value >= max}
+        disabled={max !== undefined && value >= max}
         aria-label="Aumentar cantidad"
       >
         <Plus size={16} />
