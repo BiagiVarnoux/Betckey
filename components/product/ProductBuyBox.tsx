@@ -85,7 +85,7 @@ export default function ProductBuyBox({ product, thresholds }: { product: Produc
 
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">Cantidad:</span>
-        <QuantitySelector value={qty} onChange={setQty} />
+        <QuantitySelector value={qty} onChange={setQty} max={product.stock !== null ? Number(product.stock) : undefined} />
       </div>
 
       {outOfStock ? (
