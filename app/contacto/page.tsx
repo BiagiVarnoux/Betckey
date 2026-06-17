@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getContactInfo } from '@/lib/contact';
 import { MessageCircle, Mail, MapPin, Clock, Phone } from 'lucide-react';
 
