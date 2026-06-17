@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import type { ProductWithImages } from '@/lib/products';
-import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 import ProductPlaceholder from './ProductPlaceholder';
 
@@ -20,7 +19,6 @@ interface Props {
 }
 
 export default function ProductCard({ product, showBadge = false }: Props) {
-  const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: 1 });
   // DB tiene prioridad, luego legacy, luego placeholder
   const dbCover = product.images[0] ? { src: product.images[0].url, alt: product.images[0].alt } : null;
   const cover = dbCover ?? LEGACY_COVER[product.slug] ?? null;
@@ -77,18 +75,9 @@ export default function ProductCard({ product, showBadge = false }: Props) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 bg-[var(--color-whatsapp)] text-white font-semibold py-2.5 px-4 rounded-lg hover:opacity-90 transition-opacity text-sm"
-          >
-            <MessageCircle size={16} />
-            Pedir por WhatsApp
-          </a>
           <Link
             href={`/productos/${product.slug}`}
-            className="flex items-center justify-center gap-1 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
+            className="flex items-center justify-center gap-1 bg-[var(--color-primary)] text-white font-semibold py-2.5 px-4 rounded-lg hover:opacity-90 transition-opacity text-sm"
           >
             Ver detalles <ArrowRight size={14} />
           </Link>
