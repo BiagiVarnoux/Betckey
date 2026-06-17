@@ -56,6 +56,29 @@ export const announcementMessages = pgTable('announcement_messages', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+export const contactInfo = pgTable('contact_info', {
+  id:            serial('id').primaryKey(),
+  whatsapp:      text('whatsapp').notNull().default(''),
+  phone:         text('phone').notNull().default(''),
+  email:         text('email').notNull().default(''),
+  address:       text('address').notNull().default(''),
+  city:          text('city').notNull().default(''),
+  businessHours: text('business_hours').notNull().default(''),
+  updatedAt:     timestamp('updated_at').defaultNow(),
+});
+
+export const coupons = pgTable('coupons', {
+  id:            serial('id').primaryKey(),
+  code:          text('code').notNull().unique(),
+  discountType:  text('discount_type').notNull().default('percentage'), // 'percentage' | 'fixed'
+  discountValue: decimal('discount_value', { precision: 10, scale: 2 }).notNull(),
+  usageLimit:    integer('usage_limit'),        // null = ilimitado
+  usageCount:    integer('usage_count').notNull().default(0),
+  expiresAt:     timestamp('expires_at'),       // null = sin fecha límite
+  isActive:      boolean('is_active').notNull().default(true),
+  createdAt:     timestamp('created_at').defaultNow(),
+});
+
 export const orders = pgTable('orders', {
   id:               serial('id').primaryKey(),
   orderNumber:      text('order_number').notNull().unique(),
@@ -81,6 +104,9 @@ export type OrderItem = {
 };
 
 export type StoreSettings = typeof storeSettings.$inferSelect;
+export type ContactInfo = typeof contactInfo.$inferSelect;
+export type Coupon = typeof coupons.$inferSelect;
+export type NewCoupon = typeof coupons.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductImage = typeof productImages.$inferSelect;

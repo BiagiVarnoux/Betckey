@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
-import { orders } from '@/lib/db/schema';
+import { orders, coupons } from '@/lib/db/schema';
 import type { OrderItem } from '@/lib/db/schema';
+import { eq, sql } from 'drizzle-orm';
 import { Resend } from 'resend';
 
 function generateOrderNumber(): string {
@@ -53,11 +54,12 @@ function buildEmailHtml(orderNumber: string, customerName: string, customerWhats
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { customerName, customerWhatsapp, customerCity, items } = body as {
+    const { customerName, customerWhatsapp, customerCity, items, couponCode } = body as {
       customerName: string;
       customerWhatsapp: string;
       customerCity: string;
       items: OrderItem[];
+      couponCode?: string;
     };
 
     if (!customerName?.trim() || !customerWhatsapp?.trim() || !customerCity?.trim() || !items?.length) {
@@ -68,6 +70,33 @@ export async function POST(req: Request) {
       return sum + (item.priceBob ? parseFloat(item.priceBob) * item.quantity : 0);
     }, 0);
 
+    // Validar y aplicar cupón
+    let discountAmount = 0;
+    let appliedCouponId: number | null = null;
+    if (couponCode?.trim()) {
+      const db = getDb();
+      const [coupon] = await db
+        .select()
+        .from(coupons)
+        .where(eq(coupons.code, couponCode.trim().toUpperCase()))
+        .limit(1);
+
+      if (
+        coupon &&
+        coupon.isActive &&
+        (!coupon.expiresAt || new Date() <= new Date(coupon.expiresAt)) &&
+        (coupon.usageLimit === null || coupon.usageCount < coupon.usageLimit)
+      ) {
+        const val = parseFloat(coupon.discountValue);
+        discountAmount =
+          coupon.discountType === 'percentage'
+            ? parseFloat(((subtotal * val) / 100).toFixed(2))
+            : Math.min(val, subtotal);
+        appliedCouponId = coupon.id;
+      }
+    }
+
+    const total = parseFloat((subtotal - discountAmount).toFixed(2));
     const orderNumber = generateOrderNumber();
     const db = getDb();
 
@@ -77,8 +106,19 @@ export async function POST(req: Request) {
       customerWhatsapp: customerWhatsapp.trim(),
       customerCity: customerCity.trim(),
       items,
-      subtotal: subtotal.toFixed(2),
+      subtotal: total.toFixed(2),
+      notes: appliedCouponId
+        ? `Cupón: ${couponCode!.toUpperCase()} (−Bs. ${discountAmount.toFixed(2)})`
+        : null,
     });
+
+    // Incrementar uso del cupón
+    if (appliedCouponId) {
+      await db
+        .update(coupons)
+        .set({ usageCount: sql`${coupons.usageCount} + 1` })
+        .where(eq(coupons.id, appliedCouponId));
+    }
 
     // Enviar email si hay credenciales configuradas
     const resendKey = process.env.RESEND_API_KEY;

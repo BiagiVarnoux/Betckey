@@ -52,7 +52,7 @@ const brandMenus = [
 const staticLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/#como-pedir', label: '¿Cómo pedir?' },
-  { href: '/#contacto', label: 'Contacto' },
+  { href: '/contacto', label: 'Contacto' },
 ];
 
 export default function Header() {

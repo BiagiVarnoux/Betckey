@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { getAllProductsAdmin } from '@/lib/products';
-import { Package, AlertTriangle, CheckCircle, Megaphone, Settings2, ShoppingBag } from 'lucide-react';
+import { Package, AlertTriangle, CheckCircle, Megaphone, Settings2, ShoppingBag, Phone, Tag } from 'lucide-react';
 import LogoutButton from './LogoutButton';
 
 export default async function AdminDashboard() {
@@ -63,6 +63,20 @@ export default async function AdminDashboard() {
         >
           <ShoppingBag size={18} />
           Pedidos
+        </Link>
+        <Link
+          href="/admin/cupones"
+          className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+        >
+          <Tag size={18} />
+          Cupones de descuento
+        </Link>
+        <Link
+          href="/admin/contacto"
+          className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+        >
+          <Phone size={18} />
+          Información de contacto
         </Link>
         <Link
           href="/admin/configuracion"

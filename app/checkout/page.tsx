@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, MapPin, CheckCircle, AlertCircle, Truck } from 'lucide-react';
+import { ShoppingCart, MapPin, CheckCircle, AlertCircle, Truck, Tag, X } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatBob } from '@/lib/utils';
 
@@ -24,8 +24,43 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Cupón
+  const [couponInput, setCouponInput] = useState('');
+  const [couponStatus, setCouponStatus] = useState<'idle' | 'loading' | 'applied' | 'error'>('idle');
+  const [couponMsg, setCouponMsg] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string; discountType: string; discountValue: number; discountAmount: number;
+  } | null>(null);
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function applyCoupon() {
+    if (!couponInput.trim()) return;
+    setCouponStatus('loading'); setCouponMsg('');
+    const res = await fetch('/api/coupons/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: couponInput.trim(), subtotal: total }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setAppliedCoupon(data);
+      setCouponStatus('applied');
+      setCouponMsg(`¡Cupón aplicado! Descuento: −${formatBob(data.discountAmount)}`);
+    } else {
+      setCouponStatus('error');
+      setCouponMsg(data.error ?? 'Cupón no válido');
+      setAppliedCoupon(null);
+    }
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponStatus('idle');
+    setCouponMsg('');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,7 +73,7 @@ export default function CheckoutPage() {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, items }),
+        body: JSON.stringify({ ...form, items, couponCode: appliedCoupon?.code }),
       });
 
       if (!res.ok) {
@@ -157,6 +192,48 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {/* Cupón de descuento */}
+          <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-3">
+            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Tag size={16} className="text-[var(--color-primary)]" />
+              ¿Tienes un cupón?
+            </h2>
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                <div>
+                  <p className="text-sm font-bold text-green-800 font-mono">{appliedCoupon.code}</p>
+                  <p className="text-xs text-green-700 mt-0.5">{couponMsg}</p>
+                </div>
+                <button onClick={removeCoupon} className="text-green-600 hover:text-green-800 p-1">
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={couponInput}
+                  onChange={e => { setCouponInput(e.target.value); setCouponStatus('idle'); setCouponMsg(''); }}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), applyCoupon())}
+                  placeholder="Ingresa tu código"
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-mono uppercase outline-none focus:border-[var(--color-primary)] transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  disabled={couponStatus === 'loading' || !couponInput.trim()}
+                  className="px-4 py-2.5 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+                >
+                  {couponStatus === 'loading' ? '...' : 'Aplicar'}
+                </button>
+              </div>
+            )}
+            {couponStatus === 'error' && (
+              <p className="text-xs text-red-500 flex items-center gap-1">
+                <AlertCircle size={13} /> {couponMsg}
+              </p>
+            )}
+          </div>
+
           {status === 'error' && (
             <div className="flex items-center gap-2 text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm">
               <AlertCircle size={16} />
@@ -212,6 +289,15 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <span>{formatBob(total)}</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span className="flex items-center gap-1">
+                    <Tag size={12} />
+                    Cupón {appliedCoupon.code}
+                  </span>
+                  <span>−{formatBob(appliedCoupon.discountAmount)}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <span className="flex items-center gap-1.5">
                   <MapPin size={13} />
@@ -221,7 +307,9 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between font-bold text-gray-900 text-base pt-1 border-t border-gray-100">
                 <span>Total</span>
-                <span className="text-[var(--color-accent)]">{formatBob(total)}</span>
+                <span className="text-[var(--color-accent)]">
+                  {formatBob(appliedCoupon ? total - appliedCoupon.discountAmount : total)}
+                </span>
               </div>
             </div>
           </div>
