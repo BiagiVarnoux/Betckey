@@ -14,11 +14,18 @@ export default async function ContactoPage() {
     <main>
 
       {/* ── HERO ───────────────────────────────────────────────── */}
-      <section className="relative bg-[var(--color-primary)] overflow-hidden">
-        {/* Círculos decorativos de fondo */}
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-white/5 rounded-full" />
-        <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-white/5 rounded-full" />
-        <div className="absolute top-10 left-1/3 w-48 h-48 bg-white/5 rounded-full" />
+      <section
+        className="relative bg-[var(--color-primary)] overflow-hidden"
+        style={info.bannerImageUrl ? { backgroundImage: `url(${info.bannerImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
+        {/* Círculos decorativos de fondo (solo sin imagen) */}
+        {!info.bannerImageUrl && (
+          <>
+            <div className="absolute -top-20 -right-20 w-96 h-96 bg-white/5 rounded-full" />
+            <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-white/5 rounded-full" />
+            <div className="absolute top-10 left-1/3 w-48 h-48 bg-white/5 rounded-full" />
+          </>
+        )}
 
         <div className="relative max-w-4xl mx-auto px-4 py-20 text-center">
           <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-3">

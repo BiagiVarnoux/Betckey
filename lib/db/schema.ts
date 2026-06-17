@@ -57,14 +57,28 @@ export const announcementMessages = pgTable('announcement_messages', {
 });
 
 export const contactInfo = pgTable('contact_info', {
-  id:            serial('id').primaryKey(),
-  whatsapp:      text('whatsapp').notNull().default(''),
-  phone:         text('phone').notNull().default(''),
-  email:         text('email').notNull().default(''),
-  address:       text('address').notNull().default(''),
-  city:          text('city').notNull().default(''),
-  businessHours: text('business_hours').notNull().default(''),
-  updatedAt:     timestamp('updated_at').defaultNow(),
+  id:              serial('id').primaryKey(),
+  whatsapp:        text('whatsapp').notNull().default(''),
+  phone:           text('phone').notNull().default(''),
+  email:           text('email').notNull().default(''),
+  address:         text('address').notNull().default(''),
+  city:            text('city').notNull().default(''),
+  businessHours:   text('business_hours').notNull().default(''),
+  bannerImageUrl:  text('banner_image_url'),
+  updatedAt:       timestamp('updated_at').defaultNow(),
+});
+
+export const heroSlides = pgTable('hero_slides', {
+  id:        serial('id').primaryKey(),
+  headline:  text('headline').notNull(),
+  sub:       text('sub').notNull().default(''),
+  ctaLabel:  text('cta_label').notNull().default('Ver catálogo'),
+  ctaHref:   text('cta_href').notNull().default('/catalogo'),
+  ctaType:   text('cta_type').notNull().default('primary'), // 'primary' | 'whatsapp'
+  imageUrl:  text('image_url'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  isActive:  boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 export const coupons = pgTable('coupons', {
@@ -105,6 +119,8 @@ export type OrderItem = {
 
 export type StoreSettings = typeof storeSettings.$inferSelect;
 export type ContactInfo = typeof contactInfo.$inferSelect;
+export type HeroSlide = typeof heroSlides.$inferSelect;
+export type NewHeroSlide = typeof heroSlides.$inferInsert;
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 export type Product = typeof products.$inferSelect;

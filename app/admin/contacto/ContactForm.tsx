@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Save, CheckCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import Image from 'next/image';
+import { Save, CheckCircle, Upload, ImageIcon } from 'lucide-react';
 import type { ContactInfo } from '@/lib/db/schema';
 
 export default function ContactForm({ info }: { info: ContactInfo }) {
@@ -13,9 +14,26 @@ export default function ContactForm({ info }: { info: ContactInfo }) {
     city:          info.city,
     businessHours: info.businessHours,
   });
+  const [bannerUrl, setBannerUrl] = useState(info.bannerImageUrl ?? '');
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved,  setSaved]  = useState(false);
   const [error,  setError]  = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('imagen', file);
+    const res = await fetch('/api/admin/contact/imagen', { method: 'POST', body: fd });
+    if (res.ok) {
+      const data = await res.json();
+      setBannerUrl(data.bannerImageUrl ?? '');
+    }
+    setUploading(false);
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -81,6 +99,39 @@ export default function ContactForm({ info }: { info: ContactInfo }) {
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
+      </div>
+
+      {/* Imagen del banner de /contacto */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-base font-semibold text-gray-900">Imagen del banner de contacto</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Aparece como fondo en el hero de la página <span className="font-mono">/contacto</span>. Recomendado: 1920×600px JPG/WebP.
+          </p>
+        </div>
+
+        <div
+          className="relative w-full h-40 rounded-xl overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300 cursor-pointer group hover:border-[var(--color-primary)] transition-colors"
+          onClick={() => fileRef.current?.click()}
+        >
+          {bannerUrl ? (
+            <Image src={bannerUrl} alt="Banner contacto" fill className="object-cover" />
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full h-full text-gray-400">
+              <ImageIcon size={32} className="mb-2" />
+              <p className="text-sm">Haz clic para subir una imagen</p>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Upload size={20} className="text-white" />
+            <span className="text-white text-sm font-medium">{uploading ? 'Subiendo...' : 'Cambiar imagen'}</span>
+          </div>
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleBannerUpload} disabled={uploading} />
+        </div>
+
+        {bannerUrl && (
+          <p className="text-xs text-gray-400 truncate">URL: {bannerUrl}</p>
+        )}
       </div>
 
       <button
