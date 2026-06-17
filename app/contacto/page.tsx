@@ -20,7 +20,10 @@ export default async function ContactoPage() {
         className="relative bg-[var(--color-primary)] overflow-hidden"
         style={info.bannerImageUrl ? { backgroundImage: `url(${info.bannerImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
       >
-        {/* Círculos decorativos de fondo (solo sin imagen) */}
+        {/* Overlay oscuro para contraste — más intenso con imagen */}
+        <div className={`absolute inset-0 ${info.bannerImageUrl ? 'bg-black/60' : 'bg-black/20'}`} />
+
+        {/* Círculos decorativos (solo sin imagen) */}
         {!info.bannerImageUrl && (
           <>
             <div className="absolute -top-20 -right-20 w-96 h-96 bg-white/5 rounded-full" />
@@ -30,13 +33,13 @@ export default async function ContactoPage() {
         )}
 
         <div className="relative max-w-4xl mx-auto px-4 py-20 text-center">
-          <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-3">
+          <p className="text-white/70 text-sm font-semibold uppercase tracking-widest mb-3">
             Estamos aquí para ayudarte
           </p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
             Contáctanos
           </h1>
-          <p className="text-blue-200 text-lg max-w-xl mx-auto">
+          <p className="text-white/80 text-lg max-w-xl mx-auto drop-shadow">
             Respondemos por WhatsApp en minutos. También puedes escribirnos al correo o visitarnos en nuestra dirección.
           </p>
         </div>
