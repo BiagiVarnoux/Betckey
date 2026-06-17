@@ -3,6 +3,9 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getProductBySlug, getAllProducts } from '@/lib/products';
 import { getStoreSettings } from '@/lib/settings';
+import { getDb } from '@/lib/db';
+import { faqs } from '@/lib/db/schema';
+import { asc, eq } from 'drizzle-orm';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductBuyBox from '@/components/product/ProductBuyBox';
 import CompatiblePrinters from '@/components/product/CompatiblePrinters';
@@ -37,9 +40,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [product, thresholds] = await Promise.all([
+  const db = getDb();
+  const [product, thresholds, faqList] = await Promise.all([
     getProductBySlug(slug),
     getStoreSettings(),
+    db.select({ question: faqs.question, answer: faqs.answer })
+      .from(faqs)
+      .where(eq(faqs.isActive, true))
+      .orderBy(asc(faqs.sortOrder)),
   ]);
   if (!product) notFound();
 
@@ -102,7 +110,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
         <CompatiblePrinters compatibleWith={product.compatibleWith} model={product.model} />
         <SpecsTable product={product} />
-        <FAQAccordion />
+        <FAQAccordion faqs={faqList} />
       </div>
 
       <StickyBuyBar product={product} />

@@ -68,6 +68,15 @@ export const contactInfo = pgTable('contact_info', {
   updatedAt:       timestamp('updated_at').defaultNow(),
 });
 
+export const faqs = pgTable('faqs', {
+  id:        serial('id').primaryKey(),
+  question:  text('question').notNull(),
+  answer:    text('answer').notNull(),
+  sortOrder: integer('sort_order').notNull().default(0),
+  isActive:  boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const heroSlides = pgTable('hero_slides', {
   id:        serial('id').primaryKey(),
   headline:  text('headline').notNull(),
@@ -119,6 +128,7 @@ export type OrderItem = {
 
 export type StoreSettings = typeof storeSettings.$inferSelect;
 export type ContactInfo = typeof contactInfo.$inferSelect;
+export type FAQ = typeof faqs.$inferSelect;
 export type HeroSlide = typeof heroSlides.$inferSelect;
 export type NewHeroSlide = typeof heroSlides.$inferInsert;
 export type Coupon = typeof coupons.$inferSelect;
