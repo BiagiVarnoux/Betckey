@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, MapPin, CheckCircle, AlertCircle, Truck, Tag, X } from 'lucide-react';
@@ -18,8 +17,22 @@ type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function CheckoutPage() {
   const { items, total, itemCount, clearCart } = useCart();
-  const router = useRouter();
   const [form, setForm] = useState<FormData>({ customerName: '', customerWhatsapp: '', customerCity: '' });
+
+  // Pre-rellenar con datos del perfil si el usuario está logueado
+  useEffect(() => {
+    fetch('/api/cuenta/perfil', { cache: 'no-store' })
+      .then((r) => r.ok ? r.json() : null)
+      .then((profile) => {
+        if (!profile) return;
+        setForm((prev) => ({
+          customerName:     prev.customerName     || [profile.name, profile.lastName].filter(Boolean).join(' '),
+          customerWhatsapp: prev.customerWhatsapp || profile.phone  || '',
+          customerCity:     prev.customerCity     || profile.city   || '',
+        }));
+      })
+      .catch(() => {});
+  }, []);
   const [status, setStatus] = useState<Status>('idle');
   const [orderNumber, setOrderNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');

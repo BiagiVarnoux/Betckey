@@ -10,7 +10,10 @@ export default function AccountIcon() {
   const [me, setMe] = useState<Me | undefined>(undefined); // undefined = loading
 
   useEffect(() => {
-    fetch('/api/auth/me').then((r) => r.json()).then(setMe).catch(() => setMe(null));
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then(setMe)
+      .catch(() => setMe(null));
   }, []);
 
   if (me === undefined) {

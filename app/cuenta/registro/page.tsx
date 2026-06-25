@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
 
@@ -9,7 +8,6 @@ const inputCls =
   'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]';
 
 export default function RegistroPage() {
-  const router = useRouter();
   const [form, setForm] = useState({ name: '', lastName: '', email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,8 +28,7 @@ export default function RegistroPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      router.push('/cuenta');
-      router.refresh();
+      window.location.href = '/cuenta';
     } else {
       setError(data.error ?? 'Error al registrarse.');
       setLoading(false);
