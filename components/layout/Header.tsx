@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, X, MessageCircle, Search, ChevronDown } from 'lucide-react';
 import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
 import CartIcon from '@/components/cart/CartIcon';
+import AccountIcon from '@/components/auth/AccountIcon';
 
 // Estructura de marcas — agregar Dymo, Zebra, etc. aquí cuando estén disponibles
 const brandMenus = [
@@ -213,6 +214,7 @@ export default function Header() {
           >
             <MessageCircle size={22} />
           </a>
+          <AccountIcon />
           <CartIcon />
           <button
             className="md:hidden p-2 text-gray-600"

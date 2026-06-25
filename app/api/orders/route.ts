@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { getDb } from '@/lib/db';
 import { orders, coupons } from '@/lib/db/schema';
 import type { OrderItem } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { Resend } from 'resend';
+import { verifyUserSessionToken, USER_SESSION_COOKIE } from '@/lib/user-auth';
 
 function generateOrderNumber(): string {
   const date = new Date();
@@ -100,7 +102,12 @@ export async function POST(req: Request) {
     const orderNumber = generateOrderNumber();
     const db = getDb();
 
+    // Adjuntar userId si el cliente tiene sesión activa
+    const jar = await cookies();
+    const userId = await verifyUserSessionToken(jar.get(USER_SESSION_COOKIE)?.value);
+
     await db.insert(orders).values({
+      userId: userId ?? undefined,
       orderNumber,
       customerName: customerName.trim(),
       customerWhatsapp: customerWhatsapp.trim(),

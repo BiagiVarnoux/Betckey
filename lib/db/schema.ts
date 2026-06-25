@@ -102,8 +102,22 @@ export const coupons = pgTable('coupons', {
   createdAt:     timestamp('created_at').defaultNow(),
 });
 
+export const users = pgTable('users', {
+  id:           serial('id').primaryKey(),
+  email:        text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  name:         text('name').notNull().default(''),
+  lastName:     text('last_name').notNull().default(''),
+  address:      text('address').notNull().default(''),
+  city:         text('city').notNull().default(''),
+  phone:        text('phone').notNull().default(''),
+  createdAt:    timestamp('created_at').defaultNow(),
+  updatedAt:    timestamp('updated_at').defaultNow(),
+});
+
 export const orders = pgTable('orders', {
   id:               serial('id').primaryKey(),
+  userId:           integer('user_id').references(() => users.id, { onDelete: 'set null' }),
   orderNumber:      text('order_number').notNull().unique(),
   customerName:     text('customer_name').notNull(),
   customerWhatsapp: text('customer_whatsapp').notNull(),
@@ -139,3 +153,5 @@ export type ProductImage = typeof productImages.$inferSelect;
 export type AnnouncementMessage = typeof announcementMessages.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
