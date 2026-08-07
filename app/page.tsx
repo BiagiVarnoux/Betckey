@@ -3,6 +3,8 @@ import HeroSlider, { type SlideData } from '@/components/home/HeroSlider';
 import TrustBadges from '@/components/home/TrustBadges';
 import ProductsGrid from '@/components/home/ProductsGrid';
 import HowToOrder from '@/components/home/HowToOrder';
+import CompatibilityTeaser from '@/components/home/CompatibilityTeaser';
+import { getCompatibilityData } from '@/lib/compatibility';
 import { getDb } from '@/lib/db';
 import { heroSlides } from '@/lib/db/schema';
 import { asc, eq } from 'drizzle-orm';
@@ -28,9 +30,10 @@ const FALLBACK_SLIDES: SlideData[] = [
 ];
 
 export default async function HomePage() {
-  const [products, dbSlides] = await Promise.all([
+  const [products, dbSlides, compatibility] = await Promise.all([
     getFeaturedProducts(),
     getDb().select().from(heroSlides).where(eq(heroSlides.isActive, true)).orderBy(asc(heroSlides.sortOrder)),
+    getCompatibilityData(),
   ]);
 
   const slides: SlideData[] = dbSlides.length > 0 ? dbSlides : FALLBACK_SLIDES;
@@ -39,6 +42,7 @@ export default async function HomePage() {
     <>
       <HeroSlider slides={slides} />
       <TrustBadges />
+      <CompatibilityTeaser data={compatibility} />
       <ProductsGrid products={products} />
       <HowToOrder />
     </>

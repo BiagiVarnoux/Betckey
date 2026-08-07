@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { products } from '@/lib/db/schema';
+import { products, productPrinters } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/session';
@@ -25,7 +25,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   const body = await request.json();
   const allowedFields = [
-    'name', 'slug', 'priceUsd', 'priceBob', 'isActive', 'isFeatured', 'sortOrder',
+    'name', 'slug', 'brand', 'priceUsd', 'priceBob', 'isActive', 'isFeatured', 'sortOrder',
     'mainUse', 'labelType', 'widthMm', 'heightMm', 'widthIn', 'heightIn', 'unitsPerRoll',
     'compatibleWith', 'features',
     'description', 'metaDescription', 'cardSubtitle', 'stock',
@@ -38,6 +38,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   update.updatedAt = new Date();
 
   const [updated] = await db.update(products).set(update).where(eq(products.id, Number(id))).returning();
+
+  // Impresoras compatibles: se reemplaza la lista completa
+  if (Array.isArray(body.printerIds)) {
+    const productId = Number(id);
+    await db.delete(productPrinters).where(eq(productPrinters.productId, productId));
+    const ids = [...new Set((body.printerIds as unknown[]).map(Number))].filter(Number.isInteger);
+    if (ids.length) {
+      await db.insert(productPrinters).values(ids.map(printerId => ({ productId, printerId })));
+    }
+  }
+
   return NextResponse.json(updated);
 }
 

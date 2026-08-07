@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ProductWithImages } from '@/lib/products';
+import { BRANDS, type Printer } from '@/lib/db/schema';
 import {
   Save, CheckCircle, Plus, X,
   Tag, Settings2, Search, ImageIcon,
@@ -24,6 +25,71 @@ function Field({
       <label className="text-sm font-medium text-gray-700">{label}</label>
       {hint && <p className="text-xs text-gray-400">{hint}</p>}
       {children}
+    </div>
+  );
+}
+
+/** Impresoras compatibles: solo se pueden elegir las cargadas para la marca del producto. */
+function PrinterPicker({
+  brand, printers, selected, onChange,
+}: {
+  brand: string;
+  printers: Printer[];
+  selected: number[];
+  onChange: (ids: number[]) => void;
+}) {
+  const options = printers.filter((p) => p.brand === brand);
+  const allSelected = options.length > 0 && options.every((p) => selected.includes(p.id));
+
+  function toggle(id: number) {
+    onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <div>
+          <label className="text-sm font-medium text-gray-700">Impresoras compatibles</label>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Solo aparecen las impresoras {brand}. Se administran en{' '}
+            <a href="/admin/impresoras" className="text-[var(--color-primary)] hover:underline">Impresoras</a>.
+          </p>
+        </div>
+        {options.length > 0 && (
+          <button
+            type="button"
+            onClick={() => onChange(allSelected ? [] : options.map((p) => p.id))}
+            className="text-xs text-[var(--color-primary)] hover:underline shrink-0"
+          >
+            {allSelected ? 'Quitar todas' : 'Seleccionar todas'}
+          </button>
+        )}
+      </div>
+
+      {options.length === 0 ? (
+        <p className="text-sm text-gray-500 border border-dashed border-gray-200 rounded-lg px-4 py-6 text-center">
+          No hay impresoras {brand} cargadas todavía.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 border border-gray-200 rounded-lg p-3 max-h-72 overflow-y-auto">
+          {options.map((p) => {
+            const on = selected.includes(p.id);
+            return (
+              <label
+                key={p.id}
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-sm cursor-pointer transition-colors ${
+                  on ? 'bg-[var(--color-primary)]/8 text-[var(--color-primary)] font-medium' : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <input type="checkbox" checked={on} onChange={() => toggle(p.id)} className="accent-[var(--color-primary)]" />
+                {p.model}
+                {!p.isActive && <span className="text-xs text-gray-400">(oculta)</span>}
+              </label>
+            );
+          })}
+        </div>
+      )}
+      <p className="text-xs text-gray-400">{selected.length} seleccionada{selected.length === 1 ? '' : 's'}</p>
     </div>
   );
 }
@@ -82,7 +148,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-export default function EditProductForm({ product }: { product: ProductWithImages }) {
+export default function EditProductForm({
+  product,
+  printers,
+  initialPrinterIds,
+}: {
+  product: ProductWithImages;
+  printers: Printer[];
+  initialPrinterIds: number[];
+}) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('general');
 
@@ -96,6 +170,8 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     sortOrder:    product.sortOrder,
     // General
     name:         product.name,
+    brand:        product.brand,
+    printerIds:   initialPrinterIds,
     model:        product.model,
     slug:         product.slug,
     mainUse:      product.mainUse,
@@ -152,7 +228,8 @@ export default function EditProductForm({ product }: { product: ProductWithImage
         cardSubtitle:    form.cardSubtitle.trim() || null,
         description:     form.description     || null,
         metaDescription: form.metaDescription || null,
-        compatibleWith:  form.compatibleWith.filter(Boolean),
+        // Se guarda también como texto para la ficha del producto
+        compatibleWith:  printers.filter((p) => form.printerIds.includes(p.id)).map((p) => p.model),
         features:        form.features.filter(Boolean),
         specs:           form.specs.filter((s) => s.label.trim() || s.value.trim()),
       }),
@@ -181,6 +258,11 @@ export default function EditProductForm({ product }: { product: ProductWithImage
           <Field label="Modelo" hint="Ej: DK-1201, DK-2205">
             <input type="text" value={form.model} onChange={(e) => set('model', e.target.value)}
               className={inputCls} required />
+          </Field>
+          <Field label="Marca de impresora" hint="Define qué impresoras podés marcar como compatibles.">
+            <select value={form.brand} onChange={(e) => set('brand', e.target.value)} className={inputCls}>
+              {BRANDS.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
           </Field>
         </div>
         <Field label="Slug (URL)" hint={`URL pública: /productos/${form.slug}`}>
@@ -347,11 +429,11 @@ export default function EditProductForm({ product }: { product: ProductWithImage
           values={form.features}
           onChange={(v) => set('features', v)}
         />
-        <ArrayField
-          label="Impresoras compatibles"
-          hint="Modelos con los que funciona esta etiqueta."
-          values={form.compatibleWith}
-          onChange={(v) => set('compatibleWith', v)}
+        <PrinterPicker
+          brand={form.brand}
+          printers={printers}
+          selected={form.printerIds}
+          onChange={(ids) => set('printerIds', ids)}
         />
       </div>
     ),

@@ -1,9 +1,14 @@
-import { pgTable, serial, text, integer, boolean, timestamp, decimal, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, boolean, timestamp, decimal, jsonb, unique, primaryKey } from 'drizzle-orm/pg-core';
+
+/** Marcas de impresoras que maneja la tienda. */
+export const BRANDS = ['Brother', 'Dymo', 'Zebra'] as const;
+export type Brand = typeof BRANDS[number];
 
 export const products = pgTable('products', {
   id:             serial('id').primaryKey(),
   slug:           text('slug').notNull().unique(),
   name:           text('name').notNull(),
+  brand:          text('brand').notNull().default('Brother'),
   model:          text('model').notNull(),
   labelType:      text('label_type').notNull(),
   mainUse:        text('main_use').notNull(),
@@ -35,6 +40,22 @@ export const products = pgTable('products', {
   createdAt:      timestamp('created_at').defaultNow(),
   updatedAt:      timestamp('updated_at').defaultNow(),
 });
+
+/** Catálogo de impresoras, agrupadas por marca. */
+export const printers = pgTable('printers', {
+  id:        serial('id').primaryKey(),
+  brand:     text('brand').notNull(),
+  model:     text('model').notNull(),
+  isActive:  boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+}, (t) => [unique('printers_brand_model_unique').on(t.brand, t.model)]);
+
+/** Qué etiquetas entran en qué impresora. */
+export const productPrinters = pgTable('product_printers', {
+  productId: integer('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  printerId: integer('printer_id').notNull().references(() => printers.id, { onDelete: 'cascade' }),
+}, (t) => [primaryKey({ columns: [t.productId, t.printerId] })]);
 
 export const productImages = pgTable('product_images', {
   id:        serial('id').primaryKey(),
@@ -173,6 +194,8 @@ export type NewCoupon = typeof coupons.$inferInsert;
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;
 export type ProductImage = typeof productImages.$inferSelect;
+export type Printer = typeof printers.$inferSelect;
+export type NewPrinter = typeof printers.$inferInsert;
 export type AnnouncementMessage = typeof announcementMessages.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;

@@ -52,6 +52,7 @@ const brandMenus = [
 
 const staticLinks = [
   { href: '/', label: 'Inicio' },
+  { href: '/compatibilidad', label: 'Compatibilidad' },
   { href: '/#como-pedir', label: '¿Cómo pedir?' },
   { href: '/contacto', label: 'Contacto' },
 ];

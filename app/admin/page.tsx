@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import {
   Package, AlertTriangle, CheckCircle, ShoppingBag,
-  Settings2, Phone, Tag, HelpCircle, Images, ArrowRight, Store,
+  Settings2, Phone, Tag, HelpCircle, Images, ArrowRight, Store, Printer,
 } from 'lucide-react';
 import { getDb } from '@/lib/db';
 import { getAllProductsAdmin } from '@/lib/products';
@@ -47,6 +47,7 @@ export default async function AdminDashboard() {
 
         <NavSection title="Catálogo" description="Productos y contenido de las páginas de producto">
           <NavCard href="/admin/productos" icon={<Package size={20} />} title="Productos" description="Agrega, edita y gestiona el stock y precios" primary />
+          <NavCard href="/admin/impresoras" icon={<Printer size={20} />} title="Impresoras" description="Modelos por marca para el buscador de compatibilidad" />
           <NavCard href="/admin/faqs" icon={<HelpCircle size={20} />} title="Preguntas frecuentes" description="Las FAQ que aparecen en cada producto" />
         </NavSection>
 
