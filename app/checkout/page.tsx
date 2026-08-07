@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatBob } from '@/lib/utils';
+import { DEPARTAMENTOS } from '@/lib/departamentos';
 import type { PickupPoint } from '@/lib/db/schema';
 import type { MapLocation } from '@/components/checkout/MapPicker';
 
@@ -16,11 +17,6 @@ const MapPicker = lazy(() => import('@/components/checkout/MapPicker'));
 
 type DeliveryType = 'envio' | 'recojo';
 type Status = 'idle' | 'loading' | 'success' | 'error';
-
-const DEPARTAMENTOS = [
-  'Santa Cruz', 'La Paz', 'Cochabamba', 'Oruro', 'Potosí',
-  'Sucre', 'Tarija', 'Trinidad', 'Cobija',
-];
 
 const inputCls =
   'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] transition-colors bg-white';
@@ -56,7 +52,7 @@ export default function CheckoutPage() {
     firstName: '', lastName: '',
     email: '', emailConfirm: '',
     phone: '',
-    departamento: 'Santa Cruz',
+    departamento: DEPARTAMENTOS[0],
     reference: '',
     billingName: '', billingCI: '',
   });
@@ -104,7 +100,7 @@ export default function CheckoutPage() {
           firstName:   prev.firstName   || p.name     || '',
           lastName:    prev.lastName    || p.lastName  || '',
           phone:       prev.phone       || p.phone     || '',
-          departamento: prev.departamento || p.city   || 'Santa Cruz',
+          departamento: prev.departamento || p.city   || DEPARTAMENTOS[0],
         }));
       })
       .catch(() => {});

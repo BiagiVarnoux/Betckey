@@ -4,15 +4,12 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, Eye, EyeOff, Check, X, MapPin, Clock } from 'lucide-react';
 import type { PickupPoint } from '@/lib/db/schema';
 
-const CIUDADES = [
-  'Santa Cruz', 'La Paz', 'Cochabamba', 'Oruro', 'Potosí',
-  'Sucre', 'Tarija', 'Trinidad', 'Cobija',
-];
+import { DEPARTAMENTOS } from '@/lib/departamentos';
 
 const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]';
 
 type FormState = { name: string; address: string; city: string; schedule: string };
-const emptyForm: FormState = { name: '', address: '', city: 'Santa Cruz', schedule: '' };
+const emptyForm: FormState = { name: '', address: '', city: DEPARTAMENTOS[0], schedule: '' };
 
 function PuntoForm({
   initial, onSave, onCancel, saving,
@@ -41,7 +38,7 @@ function PuntoForm({
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-gray-600">Ciudad</label>
           <select value={form.city} onChange={e => set('city', e.target.value)} className={inputCls}>
-            {CIUDADES.map(c => <option key={c}>{c}</option>)}
+            {DEPARTAMENTOS.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1">
