@@ -1,14 +1,10 @@
-import { buildWhatsAppDirectURL } from '@/lib/whatsapp';
-
 const steps = [
   { num: '1', title: 'Elige tu etiqueta', desc: 'Busca el modelo compatible con tu impresora Brother QL en nuestro catálogo.' },
-  { num: '2', title: 'Escríbenos por WhatsApp', desc: 'Envíanos un mensaje con el modelo y la cantidad que necesitas. Te respondemos al momento.' },
+  { num: '2', title: 'Agrégala al carrito', desc: 'Completa tus datos y realiza tu pedido. Nosotros te contactamos por WhatsApp para confirmarlo.' },
   { num: '3', title: 'Recibe tu pedido', desc: 'Coordinamos el envío a tu ciudad. Entregamos en todo Bolivia.' },
 ];
 
 export default function HowToOrder() {
-  const waUrl = buildWhatsAppDirectURL();
-
   return (
     <section id="como-pedir" className="bg-[var(--color-surface)] py-16 px-4">
       <div className="max-w-5xl mx-auto">
@@ -17,7 +13,7 @@ export default function HowToOrder() {
           <p className="text-gray-500 mt-2">Tres pasos simples para recibir tus etiquetas</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((s) => (
             <div key={s.num} className="flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center text-2xl font-bold mb-4">
@@ -27,17 +23,6 @@ export default function HowToOrder() {
               <p className="text-gray-500 text-sm">{s.desc}</p>
             </div>
           ))}
-        </div>
-
-        <div className="flex justify-center">
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-[var(--color-whatsapp)] text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity shadow-lg"
-          >
-            💬 Hacer mi pedido por WhatsApp
-          </a>
         </div>
       </div>
     </section>
