@@ -18,6 +18,9 @@ export const products = pgTable('products', {
   features:       text('features').array().notNull(),
   description:    text('description'),
   metaDescription: text('meta_description'),
+  // Línea corta bajo el nombre en la tarjeta del catálogo.
+  // Vacío = se arma sola con medidas y unidades por rollo.
+  cardSubtitle:   text('card_subtitle'),
   stock:          integer('stock'),
   material:       text('material').notNull().default('Papel térmico recubierto'),
   printType:      text('print_type').notNull().default('Térmica directa'),

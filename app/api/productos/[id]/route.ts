@@ -28,7 +28,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     'name', 'slug', 'priceUsd', 'priceBob', 'isActive', 'isFeatured', 'sortOrder',
     'mainUse', 'labelType', 'widthMm', 'heightMm', 'widthIn', 'heightIn', 'unitsPerRoll',
     'compatibleWith', 'features',
-    'description', 'metaDescription', 'stock',
+    'description', 'metaDescription', 'cardSubtitle', 'stock',
     'model', 'material', 'printType', 'labelColor', 'adhesiveType', 'rollCoreMm', 'specs',
   ];
   const update: Record<string, unknown> = {};

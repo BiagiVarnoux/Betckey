@@ -24,6 +24,10 @@ export default function ProductCard({ product, showBadge = false }: Props) {
   const cover = dbCover ?? LEGACY_COVER[product.slug] ?? null;
   const outOfStock = product.stock !== null && Number(product.stock) === 0;
 
+  // Texto libre cargado desde el admin; si está vacío se arma con las medidas
+  const subtitle = product.cardSubtitle?.trim()
+    || `${product.widthMm}mm × ${product.heightMm > 0 ? `${product.heightMm}mm` : 'continua'} · ${product.unitsPerRoll} etiquetas`;
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col">
       <div className="relative h-52">
@@ -68,9 +72,7 @@ export default function ProductCard({ product, showBadge = false }: Props) {
               {product.name}
             </h3>
           </Link>
-          <p className="text-xs text-gray-500 mt-1">
-            {product.widthMm}mm × {product.heightMm > 0 ? `${product.heightMm}mm` : 'continua'} · {product.unitsPerRoll} etiquetas
-          </p>
+          <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
         </div>
 
         <div className="mt-auto">

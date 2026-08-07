@@ -112,6 +112,7 @@ export default function EditProductForm({ product }: { product: ProductWithImage
     adhesiveType: product.adhesiveType,
     rollCoreMm:   product.rollCoreMm,
     // SEO y contenido
+    cardSubtitle:    product.cardSubtitle ?? '',
     description:     product.description ?? '',
     metaDescription: product.metaDescription ?? '',
     features:        product.features,
@@ -127,6 +128,10 @@ export default function EditProductForm({ product }: { product: ProductWithImage
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
+
+  // Mismo texto que arma ProductCard cuando no hay subtítulo cargado
+  const autoSubtitle =
+    `${form.widthMm}mm × ${Number(form.heightMm) > 0 ? `${form.heightMm}mm` : 'continua'} · ${form.unitsPerRoll} etiquetas`;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,6 +149,7 @@ export default function EditProductForm({ product }: { product: ProductWithImage
         widthMm:      Number(form.widthMm),
         heightMm:     Number(form.heightMm),
         unitsPerRoll: Number(form.unitsPerRoll),
+        cardSubtitle:    form.cardSubtitle.trim() || null,
         description:     form.description     || null,
         metaDescription: form.metaDescription || null,
         compatibleWith:  form.compatibleWith.filter(Boolean),
@@ -188,6 +194,63 @@ export default function EditProductForm({ product }: { product: ProductWithImage
           <input type="text" value={form.mainUse} onChange={(e) => set('mainUse', e.target.value)}
             className={inputCls} required />
         </Field>
+
+        <Field
+          label="Texto bajo el nombre (catálogo)"
+          hint={`Aparece en la tarjeta del catálogo. Si lo dejás vacío se arma solo: "${autoSubtitle}"`}
+        >
+          <input
+            type="text" value={form.cardSubtitle}
+            onChange={(e) => set('cardSubtitle', e.target.value)}
+            placeholder={autoSubtitle}
+            className={inputCls}
+          />
+        </Field>
+
+        {/* ── Dimensiones y formato ─────────────────────────────────────── */}
+        <div className="border-t border-gray-100 pt-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-1">Dimensiones y formato</h3>
+          <p className="text-xs text-gray-500 mb-4">
+            Con estos datos se arman las medidas del catálogo y la ficha del producto.
+          </p>
+
+          <div className="flex flex-col gap-4">
+            <Field label="Tipo de etiqueta" hint="Ej: Troquelada, Continua.">
+              <input type="text" value={form.labelType} onChange={(e) => set('labelType', e.target.value)}
+                className={inputCls} required />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Ancho (mm)">
+                <input type="number" min="1" value={form.widthMm}
+                  onChange={(e) => set('widthMm', Number(e.target.value))}
+                  className={inputCls} required />
+              </Field>
+              <Field label="Alto (mm)" hint="Usá 0 para rollos continuos.">
+                <input type="number" min="0" value={form.heightMm}
+                  onChange={(e) => set('heightMm', Number(e.target.value))}
+                  className={inputCls} required />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Ancho (pulgadas)" hint='Ej: 2.4"'>
+                <input type="text" value={form.widthIn} onChange={(e) => set('widthIn', e.target.value)}
+                  className={inputCls} required />
+              </Field>
+              <Field label="Alto (pulgadas)" hint={'Ej: 3.9" o 100\''}>
+                <input type="text" value={form.heightIn} onChange={(e) => set('heightIn', e.target.value)}
+                  className={inputCls} required />
+              </Field>
+            </div>
+
+            <Field label="Unidades por rollo" hint="Cantidad de etiquetas que trae cada rollo.">
+              <input type="number" min="1" value={form.unitsPerRoll}
+                onChange={(e) => set('unitsPerRoll', Number(e.target.value))}
+                className={inputCls} required />
+            </Field>
+          </div>
+        </div>
       </div>
     ),
 
