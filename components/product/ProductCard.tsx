@@ -22,10 +22,16 @@ export default function ProductCard({ product, showBadge = false }: Props) {
   // DB tiene prioridad, luego legacy, luego placeholder
   const dbCover = product.images[0] ? { src: product.images[0].url, alt: product.images[0].alt } : null;
   const cover = dbCover ?? LEGACY_COVER[product.slug] ?? null;
+  const outOfStock = product.stock !== null && Number(product.stock) === 0;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-200 flex flex-col">
       <div className="relative h-52">
+        {outOfStock && (
+          <span className="absolute top-3 right-3 z-10 bg-gray-800/85 text-white text-xs font-semibold px-2 py-1 rounded-full">
+            Agotado
+          </span>
+        )}
         {showBadge && (
           <span className="absolute top-3 left-3 z-10 bg-[var(--color-accent)] text-white text-xs font-bold px-2 py-1 rounded-full">
             Más vendido

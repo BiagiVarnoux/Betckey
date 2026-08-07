@@ -1,16 +1,7 @@
 import { db } from './db';
 import { products, productImages } from './db/schema';
-import { eq, asc, and, or, gt, isNull } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import type { Product, ProductImage } from './db/schema';
-
-/**
- * Un producto se muestra en la tienda si está activo y le queda stock.
- * stock = null significa "sin control de stock", así que siempre se muestra.
- */
-const visibleInStore = and(
-  eq(products.isActive, true),
-  or(isNull(products.stock), gt(products.stock, 0)),
-);
 
 export type ProductWithImages = Product & { images: ProductImage[] };
 
@@ -31,12 +22,12 @@ async function attachImages(rows: Product[]): Promise<ProductWithImages[]> {
 }
 
 export async function getAllProducts(): Promise<ProductWithImages[]> {
-  const rows = await db.select().from(products).where(visibleInStore).orderBy(asc(products.sortOrder));
+  const rows = await db.select().from(products).where(eq(products.isActive, true)).orderBy(asc(products.sortOrder));
   return attachImages(rows);
 }
 
 export async function getFeaturedProducts(): Promise<ProductWithImages[]> {
-  const rows = await db.select().from(products).where(visibleInStore).orderBy(asc(products.sortOrder));
+  const rows = await db.select().from(products).where(eq(products.isActive, true)).orderBy(asc(products.sortOrder));
   return attachImages(rows);
 }
 

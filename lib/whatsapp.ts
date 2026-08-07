@@ -12,6 +12,13 @@ export function buildWhatsAppURL({
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
+/** Consulta por un producto agotado: cuándo vuelve a haber stock. */
+export function buildWhatsAppRestockURL({ product, model }: { product: string; model: string }): string {
+  const number = process.env.NEXT_PUBLIC_WHATSAPP;
+  const message = `Hola, vi que este producto está agotado:\nProducto: ${product}\nModelo: ${model}\n¿Cuándo vuelven a tener stock?`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
 export function buildWhatsAppDirectURL(): string {
   const number = process.env.NEXT_PUBLIC_WHATSAPP;
   return `https://wa.me/${number}`;

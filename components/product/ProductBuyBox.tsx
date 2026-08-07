@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, PackageCheck, PackageMinus, PackageX, AlertTriangle, ShoppingCart, Check } from 'lucide-react';
+import { CheckCircle, PackageCheck, PackageMinus, PackageX, AlertTriangle, ShoppingCart, Check, Truck } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
 import QuantitySelector from '@/components/ui/QuantitySelector';
+import WhatsAppButton from '@/components/ui/WhatsAppButton';
+import { buildWhatsAppRestockURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 
@@ -78,15 +80,34 @@ export default function ProductBuyBox({ product, thresholds }: { product: Produc
 
       <StockBadge stock={product.stock} thresholds={thresholds} />
 
+      {!outOfStock && (
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">Cantidad:</span>
         <QuantitySelector value={qty} onChange={setQty} max={product.stock !== null ? Number(product.stock) : undefined} />
       </div>
+      )}
 
       {outOfStock ? (
-        <button disabled className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-gray-400 cursor-not-allowed">
-          Sin stock disponible
-        </button>
+        <div className="flex flex-col gap-3">
+          <button disabled className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-gray-400 cursor-not-allowed">
+            Sin stock disponible
+          </button>
+
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+            <Truck size={17} className="text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800">
+              <span className="font-semibold">Más unidades en camino.</span>{' '}
+              Escribinos y te avisamos apenas llegue el próximo lote.
+            </p>
+          </div>
+
+          <WhatsAppButton
+            href={buildWhatsAppRestockURL({ product: product.name, model: product.model })}
+            label="Hablar con un asesor"
+            size="lg"
+            className="w-full justify-center"
+          />
+        </div>
       ) : (
         <button
           onClick={handleAddToCart}

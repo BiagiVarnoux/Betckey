@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, MessageCircle } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
+import { buildWhatsAppRestockURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import ProductPlaceholder from './ProductPlaceholder';
@@ -43,6 +44,17 @@ export default function StickyBuyBar({ product }: { product: Product }) {
             {product.priceBob ? formatBob(product.priceBob) : 'Consultar precio'}
           </p>
         </div>
+        {outOfStock ? (
+          <a
+            href={buildWhatsAppRestockURL({ product: product.name, model: product.model })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-shrink-0 flex items-center gap-2 bg-[var(--color-whatsapp)] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+          >
+            <MessageCircle size={16} />
+            Hablar con un asesor
+          </a>
+        ) : (
         <button
           onClick={() => addItem({
             productId: product.id,
@@ -53,12 +65,12 @@ export default function StickyBuyBar({ product }: { product: Product }) {
             imageUrl: product.imageUrl ?? null,
             stock: product.stock ?? null,
           })}
-          disabled={outOfStock}
-          className="flex-shrink-0 flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="flex-shrink-0 flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
         >
           <ShoppingCart size={16} />
-          {outOfStock ? 'Sin stock' : 'Agregar'}
+          Agregar
         </button>
+        )}
       </div>
     </div>
   );
