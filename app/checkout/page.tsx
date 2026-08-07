@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatBob } from '@/lib/utils';
-import { PICKUP_POINTS } from '@/lib/pickup-points';
+import type { PickupPoint } from '@/lib/db/schema';
 import type { MapLocation } from '@/components/checkout/MapPicker';
 
 const MapPicker = lazy(() => import('@/components/checkout/MapPicker'));
@@ -57,6 +57,7 @@ export default function CheckoutPage() {
     reference: '',
     billingName: '', billingCI: '',
   });
+  const [allPickupPoints, setAllPickupPoints] = useState<PickupPoint[]>([]);
   const [mapLocation, setMapLocation] = useState<MapLocation | null>(null);
   const [selectedPickup, setSelectedPickup] = useState<string>('');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -80,6 +81,14 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [emailError, setEmailError] = useState('');
+
+  // ─── Cargar puntos de recojo desde DB ─────────────────────────────────────
+  useEffect(() => {
+    fetch('/api/puntos-recojo')
+      .then(r => r.ok ? r.json() : [])
+      .then(setAllPickupPoints)
+      .catch(() => {});
+  }, []);
 
   // ─── Pre-rellenar con perfil del usuario ──────────────────────────────────
   useEffect(() => {
@@ -153,7 +162,7 @@ export default function CheckoutPage() {
 
     setStatus('loading'); setErrorMsg('');
 
-    const pickupPoint = PICKUP_POINTS.find((p) => p.id === selectedPickup);
+    const pickupPoint = allPickupPoints.find((p) => String(p.id) === selectedPickup);
     const customerName = [form.firstName, form.lastName].filter(Boolean).join(' ') || form.firstName;
 
     try {
@@ -222,8 +231,8 @@ export default function CheckoutPage() {
 
   const discountAmount = appliedCoupon?.discountAmount ?? 0;
   const finalTotal = total - discountAmount;
-  const pickupPointsForCity = PICKUP_POINTS.filter((p) => p.city === form.departamento);
-  const allPickupPoints = pickupPointsForCity.length ? pickupPointsForCity : PICKUP_POINTS;
+  const pickupPointsForCity = allPickupPoints.filter((p) => p.city === form.departamento);
+  const displayedPickupPoints = pickupPointsForCity.length ? pickupPointsForCity : allPickupPoints;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -363,15 +372,15 @@ export default function CheckoutPage() {
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                {allPickupPoints.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-4">No hay puntos de recojo en esta ciudad todavía.</p>
+                {displayedPickupPoints.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">No hay puntos de recojo disponibles todavía.</p>
                 ) : (
-                  allPickupPoints.map((p) => (
+                  displayedPickupPoints.map((p) => (
                     <label key={p.id} className={`flex items-start gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-colors ${
-                      selectedPickup === p.id ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'border-gray-200 hover:border-gray-300'
+                      selectedPickup === String(p.id) ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'border-gray-200 hover:border-gray-300'
                     }`}>
-                      <input type="radio" name="pickup" value={p.id} checked={selectedPickup === p.id}
-                        onChange={() => setSelectedPickup(p.id)} className="mt-1" />
+                      <input type="radio" name="pickup" value={String(p.id)} checked={selectedPickup === String(p.id)}
+                        onChange={() => setSelectedPickup(String(p.id))} className="mt-1" />
                       <div>
                         <p className="text-sm font-semibold text-gray-800">{p.name}</p>
                         <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">

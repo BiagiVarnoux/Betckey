@@ -102,6 +102,17 @@ export const coupons = pgTable('coupons', {
   createdAt:     timestamp('created_at').defaultNow(),
 });
 
+export const pickupPoints = pgTable('pickup_points', {
+  id:        serial('id').primaryKey(),
+  name:      text('name').notNull(),
+  address:   text('address').notNull(),
+  city:      text('city').notNull(),
+  schedule:  text('schedule').notNull().default(''),
+  isActive:  boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 export const users = pgTable('users', {
   id:           serial('id').primaryKey(),
   email:        text('email').notNull().unique(),
@@ -163,3 +174,4 @@ export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type PickupPoint = typeof pickupPoints.$inferSelect;

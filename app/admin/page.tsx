@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import {
   Package, AlertTriangle, CheckCircle, ShoppingBag,
-  Settings2, Phone, Tag, HelpCircle, Images, ArrowRight,
+  Settings2, Phone, Tag, HelpCircle, Images, ArrowRight, Store,
 } from 'lucide-react';
 import { getDb } from '@/lib/db';
 import { getAllProductsAdmin } from '@/lib/products';
@@ -61,6 +61,7 @@ export default async function AdminDashboard() {
 
         <NavSection title="Configuración" description="Datos de contacto y ajustes de la tienda">
           <NavCard href="/admin/contacto" icon={<Phone size={20} />} title="Información de contacto" description="WhatsApp, email, dirección e imagen del banner" />
+          <NavCard href="/admin/puntos-recojo" icon={<Store size={20} />} title="Puntos de recojo" description="Locales donde los clientes pueden retirar su pedido" />
           <NavCard href="/admin/configuracion" icon={<Settings2 size={20} />} title="Ajustes de stock" description="Umbrales para los indicadores de disponibilidad" />
         </NavSection>
 

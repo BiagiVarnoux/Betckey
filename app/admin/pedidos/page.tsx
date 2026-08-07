@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, ArrowLeft, MessageCircle, Trash2, ChevronDown } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, MessageCircle, Trash2, ChevronDown, ChevronUp, Truck, Store, MapPin, Mail, Receipt } from 'lucide-react';
 import { formatBob } from '@/lib/utils';
 import type { Order, OrderItem } from '@/lib/db/schema';
 
@@ -98,10 +98,21 @@ function DeleteButton({ orderId, orderNumber, onDeleted }: { orderId: number; or
   );
 }
 
+function MapLink({ lat, lng }: { lat: string; lng: string }) {
+  const url = `https://www.google.com/maps?q=${lat},${lng}`;
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline">
+      <MapPin size={11} /> Ver en mapa
+    </a>
+  );
+}
+
 export default function AdminPedidosPage() {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const fetchOrders = useCallback(async () => {
     const res = await fetch('/api/orders/list');
@@ -170,68 +181,119 @@ export default function AdminPedidosPage() {
                   hour: '2-digit', minute: '2-digit',
                 })
               : '—';
+            const isExpanded = expandedId === order.id;
+            const isRecojo = order.deliveryType === 'recojo';
 
             return (
-              <div key={order.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+              <div key={order.id} className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                 {/* Header */}
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div className="flex flex-wrap items-start justify-between gap-3 p-5">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-mono text-sm font-bold text-gray-800">{order.orderNumber}</span>
-                    <StatusSelect
-                      orderId={order.id}
-                      current={order.status}
-                      onUpdated={fetchOrders}
-                    />
+                    <StatusSelect orderId={order.id} current={order.status} onUpdated={fetchOrders} />
+                    {isRecojo ? (
+                      <span className="flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+                        <Store size={11} /> Recojo
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                        <Truck size={11} /> Envío
+                      </span>
+                    )}
                     <span className="text-xs text-gray-400">{date}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <a
-                      href={waLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm font-medium text-[#25d366] hover:opacity-80 transition-opacity"
-                    >
-                      <MessageCircle size={16} />
-                      {order.customerWhatsapp}
+                    <a href={waLink} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-sm font-medium text-[#25d366] hover:opacity-80 transition-opacity">
+                      <MessageCircle size={16} />{order.customerWhatsapp}
                     </a>
-                    <DeleteButton
-                      orderId={order.id}
-                      orderNumber={order.orderNumber}
-                      onDeleted={fetchOrders}
-                    />
+                    <DeleteButton orderId={order.id} orderNumber={order.orderNumber} onDeleted={fetchOrders} />
                   </div>
                 </div>
 
-                {/* Cliente */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm mb-4">
+                {/* Resumen rápido */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm px-5 pb-4">
                   <div>
                     <p className="text-xs text-gray-400">Cliente</p>
                     <p className="font-medium text-gray-800">{order.customerName}</p>
+                    {order.customerEmail && (
+                      <a href={`mailto:${order.customerEmail}`} className="text-xs text-gray-400 hover:text-[var(--color-primary)] flex items-center gap-0.5 mt-0.5">
+                        <Mail size={11} />{order.customerEmail}
+                      </a>
+                    )}
                   </div>
                   <div>
                     <p className="text-xs text-gray-400">Ciudad</p>
                     <p className="font-medium text-gray-800">{order.customerCity}</p>
                   </div>
                   <div>
+                    <p className="text-xs text-gray-400">
+                      {isRecojo ? 'Punto de recojo' : 'Dirección'}
+                    </p>
+                    <div className="font-medium text-gray-800 text-xs leading-snug">
+                      {isRecojo
+                        ? (order.pickupPoint ?? '—')
+                        : (order.customerAddress ?? '—')}
+                    </div>
+                    {!isRecojo && order.customerLat && order.customerLng && (
+                      <MapLink lat={order.customerLat} lng={order.customerLng} />
+                    )}
+                  </div>
+                  <div>
                     <p className="text-xs text-gray-400">Total</p>
                     <p className="font-bold text-[var(--color-accent)]">
                       {order.subtotal ? formatBob(order.subtotal) : '—'}
                     </p>
+                    {order.notes && <p className="text-xs text-green-600 mt-0.5">{order.notes}</p>}
                   </div>
                 </div>
 
-                {/* Items */}
-                <div className="border-t border-gray-100 pt-3 space-y-1">
-                  {items.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm text-gray-700">
-                      <span>
-                        {item.name} <span className="text-gray-400">({item.model})</span>
-                      </span>
-                      <span className="font-medium">
-                        x{item.quantity}{item.priceBob ? ` · ${formatBob(parseFloat(item.priceBob) * item.quantity)}` : ''}
-                      </span>
+                {/* Expandible: items + facturación */}
+                <div className="border-t border-gray-100">
+                  <button onClick={() => setExpandedId(isExpanded ? null : order.id)}
+                    className="w-full flex items-center justify-between px-5 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition-colors">
+                    <span>{items.length} producto{items.length !== 1 ? 's' : ''} · Ver detalles</span>
+                    {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-5 pb-5 flex flex-col gap-4">
+                      {/* Items */}
+                      <div className="flex flex-col gap-1">
+                        {items.map((item, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm text-gray-700 py-1 border-b border-gray-50 last:border-0">
+                            <span>{item.name} <span className="text-gray-400 text-xs">({item.model})</span></span>
+                            <span className="font-medium text-gray-800">
+                              x{item.quantity}{item.priceBob ? ` · ${formatBob(parseFloat(item.priceBob) * item.quantity)}` : ''}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Datos de facturación */}
+                      {(order.billingName || order.billingCI) && (
+                        <div className="bg-gray-50 rounded-xl px-4 py-3">
+                          <p className="text-xs font-semibold text-gray-500 flex items-center gap-1 mb-2">
+                            <Receipt size={12} /> Datos de facturación
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {order.billingName && (
+                              <div>
+                                <p className="text-xs text-gray-400">Nombre / Razón social</p>
+                                <p className="font-medium text-gray-800">{order.billingName}</p>
+                              </div>
+                            )}
+                            {order.billingCI && (
+                              <div>
+                                <p className="text-xs text-gray-400">CI / NIT</p>
+                                <p className="font-medium text-gray-800">{order.billingCI}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             );
