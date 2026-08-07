@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { ShoppingCart } from 'lucide-react';
 import type { Product } from '@/lib/db/schema';
-import { buildWhatsAppURL } from '@/lib/whatsapp';
 import { formatBob } from '@/lib/utils';
+import { useCart } from '@/context/CartContext';
 import ProductPlaceholder from './ProductPlaceholder';
 
 export default function StickyBuyBar({ product }: { product: Product }) {
   const [visible, setVisible] = useState(false);
-  const footerRef = useRef<HTMLElement | null>(null);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const onScroll = () => {
@@ -23,7 +24,7 @@ export default function StickyBuyBar({ product }: { product: Product }) {
 
   if (!visible) return null;
 
-  const waUrl = buildWhatsAppURL({ product: product.name, model: product.model, quantity: 1 });
+  const outOfStock = product.stock !== null && Number(product.stock) === 0;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] animate-slide-up">
@@ -42,14 +43,22 @@ export default function StickyBuyBar({ product }: { product: Product }) {
             {product.priceBob ? formatBob(product.priceBob) : 'Consultar precio'}
           </p>
         </div>
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-shrink-0 bg-[var(--color-whatsapp)] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
+        <button
+          onClick={() => addItem({
+            productId: product.id,
+            slug: product.slug,
+            name: product.name,
+            model: product.model,
+            priceBob: product.priceBob ?? null,
+            imageUrl: product.imageUrl ?? null,
+            stock: product.stock ?? null,
+          })}
+          disabled={outOfStock}
+          className="flex-shrink-0 flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
         >
-          💬 Pedir
-        </a>
+          <ShoppingCart size={16} />
+          {outOfStock ? 'Sin stock' : 'Agregar'}
+        </button>
       </div>
     </div>
   );

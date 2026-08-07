@@ -45,7 +45,10 @@ function SectionCard({ title, open, onToggle, children }: {
 }
 
 export default function CheckoutPage() {
-  const { items, total, itemCount, clearCart } = useCart();
+  const { items, total, itemCount, clearCart, syncStock } = useCart();
+
+  // Ajustar cantidades al stock real antes de que el cliente complete el formulario
+  useEffect(() => { syncStock(); }, [syncStock]);
 
   // ─── Estado del formulario ─────────────────────────────────────────────────
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('envio');

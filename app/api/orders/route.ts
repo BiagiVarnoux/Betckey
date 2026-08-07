@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getDb } from '@/lib/db';
-import { orders, coupons } from '@/lib/db/schema';
+import { orders, coupons, products } from '@/lib/db/schema';
 import type { OrderItem } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, inArray } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { verifyUserSessionToken, USER_SESSION_COOKIE } from '@/lib/user-auth';
 import { decreaseStock } from '@/lib/stock';
@@ -80,6 +80,36 @@ export async function POST(req: Request) {
 
     if (!customerName?.trim() || !customerWhatsapp?.trim() || !customerCity?.trim() || !items?.length) {
       return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+    }
+
+    // Validar stock real contra la base de datos (el carrito vive en localStorage
+    // y puede estar desactualizado o manipulado)
+    const dbCheck = getDb();
+    const ids = [...new Set(items.map(i => i.productId).filter(Boolean))];
+    if (ids.length) {
+      const rows = await dbCheck
+        .select({ id: products.id, name: products.name, stock: products.stock })
+        .from(products)
+        .where(inArray(products.id, ids));
+
+      const problems: string[] = [];
+      for (const item of items) {
+        const row = rows.find(r => r.id === item.productId);
+        if (!row || row.stock === null) continue;  // sin control de stock
+        if (item.quantity > row.stock) {
+          problems.push(
+            row.stock === 0
+              ? `${row.name}: sin stock disponible`
+              : `${row.name}: solo quedan ${row.stock} unidades`
+          );
+        }
+      }
+      if (problems.length) {
+        return NextResponse.json(
+          { error: `Stock insuficiente. ${problems.join('. ')}.` },
+          { status: 409 }
+        );
+      }
     }
 
     const subtotal = items.reduce((sum, item) => {

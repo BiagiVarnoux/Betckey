@@ -8,7 +8,12 @@ import { useCart } from '@/context/CartContext';
 import { formatBob } from '@/lib/utils';
 
 export default function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, total, itemCount } = useCart();
+  const { items, isOpen, closeCart, removeItem, updateQuantity, syncStock, total, itemCount } = useCart();
+
+  // Al abrir, traer el stock actual por si cambió desde la última visita
+  useEffect(() => {
+    if (isOpen) syncStock();
+  }, [isOpen, syncStock]);
 
   // Bloquear scroll cuando el drawer está abierto
   useEffect(() => {
@@ -56,7 +61,9 @@ export default function CartDrawer() {
               </button>
             </div>
           ) : (
-            items.map(item => (
+            items.map(item => {
+              const atMax = item.stock !== null && item.quantity >= item.stock;
+              return (
               <div key={item.productId} className="flex gap-3 items-start">
                 {/* Imagen */}
                 <div className="w-16 h-16 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden shrink-0">
@@ -85,8 +92,10 @@ export default function CartDrawer() {
                       <span className="px-2 text-sm font-medium min-w-[24px] text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                        className="p-1.5 hover:bg-gray-50 text-gray-600 transition-colors"
+                        disabled={atMax}
+                        className="p-1.5 hover:bg-gray-50 text-gray-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                         aria-label="Agregar uno"
+                        title={atMax ? `Solo quedan ${item.stock} unidades` : undefined}
                       >
                         <Plus size={13} />
                       </button>
@@ -107,9 +116,16 @@ export default function CartDrawer() {
                       </button>
                     </div>
                   </div>
+
+                  {atMax && (
+                    <p className="text-xs text-amber-600 mt-1.5">
+                      Es todo el stock disponible ({item.stock} {item.stock === 1 ? 'unidad' : 'unidades'})
+                    </p>
+                  )}
                 </div>
               </div>
-            ))
+              );
+            })
           )}
         </div>
 
