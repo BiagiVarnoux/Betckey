@@ -6,6 +6,7 @@ import type { OrderItem } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { verifyUserSessionToken, USER_SESSION_COOKIE } from '@/lib/user-auth';
+import { decreaseStock } from '@/lib/stock';
 
 function generateOrderNumber(): string {
   const date = new Date();
@@ -135,10 +136,14 @@ export async function POST(req: Request) {
       customerCity: customerCity.trim(),
       items,
       subtotal: total.toFixed(2),
+      stockApplied: true,
       notes: appliedCouponId
         ? `Cupón: ${couponCode!.toUpperCase()} (−Bs. ${discountAmount.toFixed(2)})`
         : null,
     });
+
+    // Descontar del stock las unidades pedidas
+    await decreaseStock(items);
 
     // Incrementar uso del cupón
     if (appliedCouponId) {

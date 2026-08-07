@@ -144,6 +144,7 @@ export const orders = pgTable('orders', {
   items:            jsonb('items').$type<OrderItem[]>().notNull(),
   subtotal:         decimal('subtotal', { precision: 10, scale: 2 }),
   status:           text('status').notNull().default('pending'),
+  stockApplied:     boolean('stock_applied').notNull().default(false),
   notes:            text('notes'),
   createdAt:        timestamp('created_at').defaultNow(),
   updatedAt:        timestamp('updated_at').defaultNow(),

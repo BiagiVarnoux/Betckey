@@ -4,6 +4,7 @@ import { orders } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifySessionToken } from '@/lib/session';
 import { cookies } from 'next/headers';
+import { decreaseStock, restoreStock } from '@/lib/stock';
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -29,8 +30,25 @@ export async function PATCH(
   }
 
   const db = getDb();
+  const [order] = await db.select().from(orders).where(eq(orders.id, Number(id))).limit(1);
+  if (!order) {
+    return NextResponse.json({ error: 'Pedido no encontrado' }, { status: 404 });
+  }
+
+  // Ajustar el stock según el cambio de estado
+  let stockApplied = order.stockApplied;
+  if (status === 'cancelled' && order.stockApplied) {
+    // Se cancela: las unidades vuelven al stock
+    await restoreStock(order.items);
+    stockApplied = false;
+  } else if (status !== 'cancelled' && !order.stockApplied) {
+    // Se reactiva un pedido cancelado: se vuelven a descontar
+    await decreaseStock(order.items);
+    stockApplied = true;
+  }
+
   await db.update(orders)
-    .set({ status, updatedAt: new Date() })
+    .set({ status, stockApplied, updatedAt: new Date() })
     .where(eq(orders.id, Number(id)));
 
   return NextResponse.json({ ok: true });
@@ -46,6 +64,13 @@ export async function DELETE(
 
   const { id } = await params;
   const db = getDb();
+
+  // Si el pedido tenía stock descontado, devolverlo antes de eliminar
+  const [order] = await db.select().from(orders).where(eq(orders.id, Number(id))).limit(1);
+  if (order?.stockApplied) {
+    await restoreStock(order.items);
+  }
+
   await db.delete(orders).where(eq(orders.id, Number(id)));
 
   return NextResponse.json({ ok: true });
