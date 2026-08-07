@@ -56,10 +56,23 @@ function buildEmailHtml(orderNumber: string, customerName: string, customerWhats
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { customerName, customerWhatsapp, customerCity, items, couponCode } = body as {
+    const {
+      customerName, customerEmail, customerWhatsapp, customerCity,
+      deliveryType, customerAddress, customerLat, customerLng,
+      pickupPoint, billingName, billingCI,
+      items, couponCode,
+    } = body as {
       customerName: string;
+      customerEmail?: string;
       customerWhatsapp: string;
       customerCity: string;
+      deliveryType?: string;
+      customerAddress?: string;
+      customerLat?: string;
+      customerLng?: string;
+      pickupPoint?: string;
+      billingName?: string;
+      billingCI?: string;
       items: OrderItem[];
       couponCode?: string;
     };
@@ -108,6 +121,14 @@ export async function POST(req: Request) {
 
     await db.insert(orders).values({
       userId: userId ?? undefined,
+      customerEmail:   customerEmail   || undefined,
+      deliveryType:    deliveryType    || 'envio',
+      customerAddress: customerAddress || undefined,
+      customerLat:     customerLat     || undefined,
+      customerLng:     customerLng     || undefined,
+      pickupPoint:     pickupPoint     || undefined,
+      billingName:     billingName     || undefined,
+      billingCI:       billingCI       || undefined,
       orderNumber,
       customerName: customerName.trim(),
       customerWhatsapp: customerWhatsapp.trim(),
