@@ -41,7 +41,7 @@ export async function PATCH(
     // Se cancela: las unidades vuelven al stock
     await restoreStock(order.items);
     stockApplied = false;
-  } else if (status !== 'cancelled' && !order.stockApplied) {
+  } else if (order.status === 'cancelled' && status !== 'cancelled' && !order.stockApplied) {
     // Se reactiva un pedido cancelado: se vuelven a descontar
     await decreaseStock(order.items);
     stockApplied = true;
